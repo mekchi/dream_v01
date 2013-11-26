@@ -57,7 +57,6 @@ void CGameObject::SetRotation(quaternion *NewRotation)
 
 void CGameObject::SetRotation(vector3* NewRotation)
 {
-    quaternion q;
     vector3 axis;
     float angle;
     

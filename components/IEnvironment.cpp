@@ -262,7 +262,10 @@ void CEnvironmentHF::UpdatePhysics(float_t DeltaTime)
             {
                 ij = i * m_iNumberHeight + j;
                 
-                m_avecPosition[ij].z += m_afVelocityContinuous[ij] + m_afVelocity[ij] * DeltaTime;
+//                m_avecPosition[ij].z += m_afVelocityContinuous[ij] + m_afVelocity[ij] * DeltaTime;
+                m_avecPosition[ij].z += m_afVelocity[ij] * DeltaTime;
+
+                m_afVelocity[ij] *= 0.99;
             }
         
         for (int i = 1; i < m_iNumberWidth - 1; i++)
@@ -400,20 +403,22 @@ void CEnvironmentHF::UpdateTouch(float DeltaTime)
         if (t > 1.0f) // one second animation
         {
             // copy heights
+            
             for (int i = 0; i < m_iTotalNumber; i++)
+            {
                 m_afHeightBuffer[i] = m_avecPosition[i].z;
+                m_afVelocity[i] = 0.0f;
+            }
             
             // shift heights
-
-            int cornerx = idx - leftx;
-            int cornery = idy - lefty;
             
-//            for (int i = leftx; i < nx; i++)
-//                for (int j = lefty; j < ny; j++)
-            for (int i = 0; i < centerx; i++)
-                for (int j = 0; j < centery; j++)
+            int cornerx = idx - leftx + 1;
+            int cornery = idy - lefty + 1;
+            
+            for (int i = 0; i < centerx - 1; i++)
+                for (int j = 0; j < centery - 1; j++)
                 {
-                    m_avecPosition[(leftx + i) * m_iNumberHeight + lefty + j].z = m_afHeightBuffer[(cornerx + i) * m_iNumberHeight + cornery + j];
+                    m_avecPosition[((leftx + i) * m_iNumberHeight) + lefty + j].z = m_afHeightBuffer[((cornerx + i) * m_iNumberHeight) + cornery + j];
                 }
 
             
@@ -426,6 +431,9 @@ void CEnvironmentHF::UpdateTouch(float DeltaTime)
             v3Subtract(&m_vecProtagonist, &m_vecCameraDirection);
             
             Globals::GetObjectManager().BroadcastMessage(CMessage(MT_PROTAGONIST_CHANGE_POSITION, static_cast<void*>(&m_vecProtagonist)));
+            
+            idx = 0;
+            idy = 0;
         }
     }
     

@@ -65,7 +65,7 @@ bool CEngine::Start(int defaultFB, float Width, float Height, const char* Path)
     
     matrix44 modelview, projection;
     
-    matrix44 rotation;
+//    matrix44 rotation;
     
     mSetIdentity(&modelview);
 //    mSetIdentity(&rotation);

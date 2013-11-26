@@ -1,0 +1,239 @@
+import os
+import maya
+from struct import *
+
+DEBUG=1
+
+def log(message,prefix="Debug",hush=False):
+    if not hush:
+        print("%s : %s " % (prefix,message))
+ 
+
+def getShapeData(shapeNode):
+    ''' '''
+    vertexValues = []
+    vertNormalValues =[]
+    textureValues =[]
+    vertList = []
+    vertNormalList = []
+    vertTextureList = []
+    faceNormals=[]
+    faceIndexVertex = []
+    faceIndexNormal = []
+    faceIndexTexture = []	
+
+    #Verts
+    numVerts = maya.cmds.polyEvaluate(shapeNode, vertex=True)
+    if DEBUG:
+        log("NumVerts : %s" % numVerts)
+        print "shapeNode:", shapeNode
+    vertexValues = [maya.cmds.pointPosition("%s.vtx[%d]" % (shapeNode, p)) for p in range(numVerts)]
+    if DEBUG:
+        log("Verticies:" +  str(vertexValues))
+ 
+    #Normals
+    numFaceNormals = 0
+    for face in range(maya.cmds.polyEvaluate(shapeNode, face=True)):
+        comp="%s.f[%d]" % (shapeNode,face)
+        vertexFaces = maya.cmds.polyListComponentConversion(comp, fromFace=True,toVertexFace=True)
+        vertexFaces= maya.cmds.filterExpand(comp, vertexFaces,selectionMask=70,expand=True)
+        faceNormals.append([])
+        for vertexFace in vertexFaces:
+            vertNormalValues.append(maya.cmds.polyNormalPerVertex(vertexFace, query=True, xyz=True))
+            numFaceNormals  += 1
+            faceNormals[-1].append(numFaceNormals )
+    if DEBUG:
+        log("Num Face Normals: " + str(numFaceNormals))
+        log("Face Normals: " + str(vertNormalValues))
+ 
+    #Texture Coordinates
+    numTexVerts = maya.cmds.polyEvaluate(shapeNode, uvcoord=True)
+    log("NumTexVerts: " + str(numTexVerts))
+    textureValues = [maya.cmds.getAttr("%s.uvpt[%d]" % (shapeNode,i)) for i in range(numTexVerts)]
+    if DEBUG:
+        log("Texture Coordinates: " + str(textureValues))
+ 
+    ################## Faces
+    numFaces = maya.cmds.polyEvaluate(shapeNode, face=True)
+    if DEBUG:
+        log("NumFaces : %s\n" % numFaces)
+
+    vnIter = 0
+    for faceNum in range(numFaces):
+        log("\nFace %d of %d" % (faceNum+1, numFaces))
+        oFace="%s.f[%d]" % (shapeNode, faceNum )
+
+        ############## Verts (v)
+        faceVerts = maya.cmds.polyInfo(oFace, faceToVertex=True)
+ 
+        #This is hacky and should be replaced with snazzy regex
+        faceVerts =  [int(fv)+1 for fv in faceVerts[0].split(":")\
+	    [-1].strip().replace("  "," ").replace("  "," ").replace("  "," ").replace(" ",",").split(",")] 
+        log("v: " + str(faceVerts) )
+        vertList.append(faceVerts)
+ 
+        ################## Normals (vn)
+        if DEBUG:
+                log("vn: " + str(faceNormals[faceNum]))    
+        vertNormalList.append(faceNormals[faceNum])
+
+        ################# Texture (vt)
+        tex =maya.cmds.polyListComponentConversion(oFace, fromFace=True,toUV=True)
+        tex= maya.cmds.filterExpand(tex,selectionMask=35,expand=True)
+      
+        tex=[int(i.split("map")[-1].strip("[]")) +1 for i in tex]
+        if DEBUG:
+            log("vt: " + str(tex))
+
+        # uv need to get in same order as vertex ordering
+        tmpDict = {}
+        for t in tex:
+            component="\n%s.map[%d]" % (shapeNode,t-1)
+            vertFromTex = maya.cmds.polyListComponentConversion(component, fromUV=True, toVertex=True)
+            if DEBUG:
+                print t,  "vertFromTex", vertFromTex, "component:", component
+            if vertFromTex:
+                index=int(vertFromTex[0].split("[")[-1].split("]")[0]) + 1
+                tmpDict[index] = t
+
+        orderedTex=[]
+        for vert in vertList[-1]:       
+            orderedTex.append(tmpDict[vert])
+            vertTextureList.append(orderedTex)
+    
+        ###############
+        faceVertexlist = [vertList[-1][j] for j in range( len( vertTextureList[-1] ) ) ]
+        faceIndexVertex.append(faceVertexlist)
+        faceTextureList = [vertTextureList[-1][j] for j in range( len( vertTextureList[-1] ) ) ]
+        faceIndexTexture.append(faceTextureList)
+        faceNormalList = [vertNormalList[-1][j] for j in range( len( vertTextureList[-1] ) ) ]
+        faceIndexNormal.append(faceNormalList)
+
+    return {"numV":numVerts,"numN":numFaceNormals,"numT":numTexVerts,"numF":numFaces,"v":vertexValues,"vn":vertNormalValues,"vt":textureValues,"fv":faceIndexVertex,"fn":faceIndexNormal,"ft":faceIndexTexture}
+
+
+def writeData(dataDict):
+    ''' '''
+    print "dataDict:", dataDict
+    buf = bytes()
+    buf += pack('iiii',dataDict["numV"],dataDict["numN"],dataDict["numT"],dataDict["numF"]) 	
+
+    for i in dataDict["v"]: 
+        if DEBUG:
+            log(str(i))
+        buf += pack('fff',i[0],i[1],i[2])
+    for i in dataDict["vn"]:
+        if DEBUG:
+            log(str(i))
+	    buf += pack('fff',i[0],i[1],i[2])
+    for i in dataDict["vt"]:
+        if DEBUG:
+            log(str(i))
+        buf += pack('ff',i[0][0],i[0][1])
+    for i in dataDict["fv"]:
+        if DEBUG:
+            log(str(i))
+        buf += pack('iii',i[0],i[1],i[2])
+    for i in dataDict["fn"]:
+        if DEBUG:
+            log(str(i))
+        buf += pack('iii',i[0],i[1],i[2])
+    for i in dataDict["ft"]:
+        if DEBUG:
+            log(str(i))
+            buf += pack('iii',i[0],i[1],i[2])
+ ##   log(buf)
+    
+    return buf
+ 
+def export(fileLocation, objList=[]):        
+    ''' '''
+    if objList==[]:
+        objList=maya.cmds.ls(sl=1, l=1)
+   
+    filePaths=[]
+    if objList and len(objList)>0:
+        for obj in objList:
+            data = getShapeData(obj)
+            string = writeData(data)
+            fName="%s.obj"% obj.replace("|","_" )
+            fPath=os.path.join(fileLocation, fName)
+            f = open(fPath,"wb")
+            if f:
+		print "writing to", fPath
+                f.write(string)
+                f.close() 
+		filePaths.append(fPath)
+    else:
+        print "Nothing to export"
+    return filePaths
+
+def main():
+    fileLocation = "/Users/mekchi/Documents"
+    export(fileLocation,objList=[] )
+
+
+main()
+
+
+from struct import *
+import os
+import maya.OpenMaya as om
+
+
+def main():
+    # buffer of bytes
+    buffer = bytes()
+    # selected object
+    sel = om.MSelectionList()
+    om.MGlobal.getActiveSelectionList(sel)
+
+    dag = om.MDagPath()
+    sel.getDagPath(0, dag)
+
+    mesh = om.MItMeshPolygon(dag)
+    itr = om.MItMeshFaceVertex(dag)
+    
+    #mesh = om.MItMeshVertex(dag)
+    print('Number of faces: %d' % mesh.count())
+
+    #version
+    buffer += pack('ic', 1, 'a')
+    #number of faces
+    buffer += pack('i', mesh.count())
+    
+    while not itr.isDone():
+        point = om.MPoint()
+        point = itr.position(om.MSpace.kWorld)
+        #print('Face id: %d' % itr.faceId())
+        #print('Vertex: %f %f %f %f' % (point.x , point.y , point.z , point.w))
+        buffer += pack('fff', point.x, point.y, point.z)
+        normal = om.MVector()
+        itr.getNormal(normal, om.MSpace.kWorld)
+        #print('Normal: %f %f %f' % (normal.x, normal.y, normal.z))
+        buffer += pack('fff', normal.x, normal.y, normal.z)
+        
+        util = om.MScriptUtil()
+        uv = util.asFloat2Ptr()
+        itr.getUV(uv)
+        
+        u = util.getFloat2ArrayItem(uv, 0, 0)
+        v = util.getFloat2ArrayItem(uv, 0, 1)
+        
+        buffer += pack('ff', u, v)
+
+        print('%.2f, %.2f, %.2f   %.2f, %.2f, %.2f   %.2f, %.2f' % (point.x, point.y, point.z, normal.x, normal.y, normal.z, u, v))        
+        itr.next()
+    
+    #write to file
+    fLocation = "/Users/mekchi/Documents"
+    fName = "%s.mek" % dag.partialPathName()
+    fPath = os.path.join(fLocation, fName)
+    f = open(fPath,"wb")
+    if f:
+        print("Writing to %s..." % fPath)
+        f.write(buffer)
+        f.close() 
+        print("Done!")
+
+main()

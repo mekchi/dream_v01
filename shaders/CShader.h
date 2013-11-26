@@ -11,7 +11,7 @@
 
 #include "graphics.h"
 #include "ShaderIds.h"
-#include "Matrix.h"
+#include "VQMMath.h"
 
 class CShader
 {

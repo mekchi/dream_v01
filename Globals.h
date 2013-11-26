@@ -11,7 +11,7 @@
 
 #include <string>
 
-#include "matrix.h"
+#include "VQMMath.h"
 #include "CObjectManager.h"
 #include "CSoundManager.h"
 #include "CEngine.h"
@@ -28,6 +28,9 @@ public:
     static float_t GetScreenWidth();
     static float_t GetScreenHeight();
     static int GetDefaultFramebuffer();
+    static vector3* GetGravity();
+    static void SetTranslation(vector3 *Translate);
+
     
 private:
     

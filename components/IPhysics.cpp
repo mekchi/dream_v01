@@ -17,6 +17,69 @@
 
 static vector3 gravity = {0.0f, 0.0f, -9.8f};
 
+
+// ---- class CPhyscicsProtagonist
+
+CPhysicsProtagonist::CPhysicsProtagonist()
+{
+    
+}
+
+CPhysicsProtagonist::~CPhysicsProtagonist()
+{
+    
+}
+
+bool CPhysicsProtagonist::Init(void *Property)
+{
+    
+    return true;
+}
+
+void CPhysicsProtagonist::Deinit()
+{
+    
+}
+
+E_MESSAGE_RESULT CPhysicsProtagonist::HandleMessage(const CMessage &Message)
+{
+    switch (Message.m_eType)
+    {
+        case MT_UPDATE:
+        {
+            Update(*(static_cast<float*>(Message.m_vpData)));
+            
+            return MR_SUCCESS;
+        }
+    
+    }
+    
+    return MR_IGNORE;
+}
+
+void CPhysicsProtagonist::Register()
+{
+    Globals::GetObjectManager().RegisterComponent(CI_PHYSICS_PROTAGONIST, Create, Destroy);
+    Globals::GetObjectManager().SubscribeMessage(CI_PHYSICS_PROTAGONIST, MT_UPDATE);
+}
+
+IComponent* CPhysicsProtagonist::Create()
+{
+    return new CPhysicsProtagonist();
+}
+
+void CPhysicsProtagonist::Destroy(IComponent *Component)
+{
+    assert(Component);
+    delete Component;
+}
+
+void CPhysicsProtagonist::Update(float DeltaTime)
+{
+    
+}
+
+
 // ---- class CPhysicsForce ----
 
 CPhysicsForce::CPhysicsForce()
@@ -32,15 +95,15 @@ CPhysicsForce::~CPhysicsForce()
 bool CPhysicsForce::Init(void* Property)
 {
 //    vSetZero(&m_vecLinearAcceleration);
-    vSetZero(&m_vecForce);
-    vSetZero(&m_vecTorque);
-    vSetZero(&m_vecLinearVelocity);
-    vSetZero(&m_vecAngularVelocity);
+    v3SetZero(&m_vecForce);
+    v3SetZero(&m_vecTorque);
+    v3SetZero(&m_vecLinearVelocity);
+    v3SetZero(&m_vecAngularVelocity);
     
     m_fLinearDamping = 0.95f;
     m_fAngularDamping = 0.9f;
     
-    vSetZero(&m_vecPull);
+    v3SetZero(&m_vecPull);
     m_fMass = 500.0f;
     m_fObjectRadius = 1.0f;
 
@@ -131,15 +194,18 @@ void CPhysicsForce::Update(float DeltaTime)
     else
     {
 //        vector3 force;
+        SObjectData data;
         
+        m_opObject->GetPosition(&(data.position));
+        data.Radius = m_fObjectRadius;
+        data.Force = &m_vecForce;
+        data.Torque = &m_vecTorque;
 
         // compute forces
-        SObjectData data = {*(m_opObject->GetPosition()), m_fObjectRadius, &m_vecForce, &m_vecTorque};
-        
         Globals::GetObjectManager().BroadcastMessage(CMessage(MT_PROTAGONIST_COMPUTE_FORCE,
                                                               static_cast<void*>(&data)));
       
-        vAdd(&m_vecForce, &m_vecPull);
+        v3Add(&m_vecForce, &m_vecPull);
 //        vDivideToR(&m_vecLinearAcceleration, &force, m_fMass);
 //        vAdd(&m_vecLinearAcceleration, &m_vecPull);
 //        vAdd(&m_vecLinearAcceleration, &gravity);
@@ -151,29 +217,33 @@ void CPhysicsForce::Update(float DeltaTime)
         
         // reset acceleration
 //        vSetZero(&m_vecLinearAcceleration);
-        vSetZero(&m_vecForce);
-        vSetZero(&m_vecTorque);
-        vSetZero(&m_vecPull);
+        v3SetZero(&m_vecForce);
+        v3SetZero(&m_vecTorque);
+        v3SetZero(&m_vecPull);
     }
 }
 
 void CPhysicsForce::Touch(vector3 *Point)
 {
+    vector3 position;
     vector3 coord;
     vector3 v;
     
-    vSet(&coord, Point->x - Globals::GetScreenWidth() * 0.5f,
-         Point->y - Globals::GetScreenHeight() * 0.5f,
-         m_opObject->GetPosition()->z);
     
-    vSubtracToR(&v, &coord, m_opObject->GetPosition());
-    if (vMagnitude(&v) > m_fObjectRadius)
+    m_opObject->GetPosition(&position);
+    
+    v3Set(&coord, Point->x - Globals::GetScreenWidth() * 0.5f,
+         Point->y - Globals::GetScreenHeight() * 0.5f,
+         position.z);
+    
+    v3SubtractToR(&v, &coord, &position);
+    if (v3Magnitude(&v) > m_fObjectRadius)
     {
         // surface touch
-        vCopy(&m_vecPull, &coord);
-        vSubtract(&m_vecPull, m_opObject->GetPosition());
-        vNormalize(&m_vecPull);
-        vMultiply(&m_vecPull, 100000.0f);
+        v3Copy(&m_vecPull, &coord);
+        v3Subtract(&m_vecPull, &position);
+        v3Normalize(&m_vecPull);
+        v3Multiply(&m_vecPull, 100000.0f);
     }
     else
     {
@@ -192,8 +262,8 @@ void CPhysicsForce::LinearIntegration(float DeltaTime)
 //    vMultiplyToR(&temp, &m_vecLinearVelocity, m_fLinearDamping);
 //    vSubtract(&m_vecForce, &temp);
     
-    vDivideToR(&acceleration, &m_vecForce, m_fMass);
-    vAdd(&acceleration, &gravity);
+    v3DivideToR(&acceleration, &m_vecForce, m_fMass);
+    v3Add(&acceleration, &gravity);
     //vAdd(&m_vecLinearAcceleration, &m_vecPull);
     
 //    vMultiplyToR(&temp, &m_vecLinearVelocity, DeltaTime);
@@ -204,19 +274,21 @@ void CPhysicsForce::LinearIntegration(float DeltaTime)
 //    vAdd(&m_vecLinearVelocity, &temp);
 //    vMultiply(&m_vecLinearVelocity, m_fLinearDamping);
     
-    vCopy(&dp, &m_vecLinearVelocity);
-    vMultiply(&dp, DeltaTime);
-    vMultiplyToR(&temp, &acceleration, DeltaTime * DeltaTime * 0.5f);
-    vAdd(&dp, &temp);
+    v3Copy(&dp, &m_vecLinearVelocity);
+    v3Multiply(&dp, DeltaTime);
+    v3MultiplyToR(&temp, &acceleration, DeltaTime * DeltaTime * 0.5f);
+    v3Add(&dp, &temp);
     
+
     // new position
-    vAdd(&dp, m_opObject->GetPosition());
+    m_opObject->GetPosition(&temp);
+    v3Add(&dp, &temp);
     m_opObject->SetPosition(&dp);
     
     // new velocity
-    vMultiplyToR(&temp, &acceleration, DeltaTime);
-    vAdd(&m_vecLinearVelocity, &temp);
-    vMultiply(&m_vecLinearVelocity, m_fLinearDamping);
+    v3MultiplyToR(&temp, &acceleration, DeltaTime);
+    v3Add(&m_vecLinearVelocity, &temp);
+    v3Multiply(&m_vecLinearVelocity, m_fLinearDamping);
 }
 
 // direct angular integration
@@ -231,21 +303,21 @@ void CPhysicsForce::AngularIntegration(float DeltaTime)
     vector3 dv, da, acceleration;
     
 
-    vMultiplyToR(&acceleration, &m_vecTorque, invert_inertia);
+    v3MultiplyToR(&acceleration, &m_vecTorque, invert_inertia);
     
-    vCopy(&dv, &m_vecAngularVelocity);
-    vMultiply(&dv, DeltaTime);
-    vMultiplyToR(&da, &acceleration, DeltaTime * DeltaTime * 0.5f);
-    vAdd(&dv, &da);
+    v3Copy(&dv, &m_vecAngularVelocity);
+    v3Multiply(&dv, DeltaTime);
+    v3MultiplyToR(&da, &acceleration, DeltaTime * DeltaTime * 0.5f);
+    v3Add(&dv, &da);
     
     // new rotaion
-    vAdd(&dv, m_opObject->GetRotation());
+    v3Add(&dv, m_opObject->GetRotation());
     m_opObject->SetRotation(&dv);
     
     // new velocity
-    vMultiplyToR(&da, &acceleration, DeltaTime);
-    vAdd(&m_vecAngularVelocity, &da);
-    vMultiply(&m_vecAngularVelocity, m_fAngularDamping);
+    v3MultiplyToR(&da, &acceleration, DeltaTime);
+    v3Add(&m_vecAngularVelocity, &da);
+    v3Multiply(&m_vecAngularVelocity, m_fAngularDamping);
     
     
     // damping
@@ -369,7 +441,7 @@ bool CPhysicsHeightField::Init(void* Property)
             id = i * m_iNumberHeight + j;
             y = m_fOriginY + ((float)j) * m_fStep;
             
-            vSet(&m_avecPosition[id], x, y, m_fLevel);
+            v3Set(&m_avecPosition[id], x, y, m_fLevel);
             m_afVelocity[id] = 0.0f;
         }
     }
@@ -456,7 +528,7 @@ void CPhysicsHeightField::ComputeForce(SObjectData *Data)
         int idy = (int)((center.y - radius - m_fOriginY) / m_fStep);
         int n = 2.0f * radius / m_fStep;
         
-        vSetZero(&torque);
+        v3SetZero(&torque);
         for (int x = 0; x < n; x++)
             for (int y = 0; y < n; y++)
             {
@@ -469,11 +541,11 @@ void CPhysicsHeightField::ComputeForce(SObjectData *Data)
                 {
                     float b = fastSqrt(radius * radius - alength2);
                     
-                    vSet(&r, ax, ay, b);
-                    vNormalize(&r);
-                    vMultiply(&r, radius);
+                    v3Set(&r, ax, ay, b);
+                    v3Normalize(&r);
+                    v3Multiply(&r, radius);
                     
-                    ax = vMagnitude(&r); // test
+                    ax = v3Magnitude(&r); // test
                     if (center.z - b < m_fLevel)
                     {
                         diff = b - center.z + m_fLevel;
@@ -481,18 +553,18 @@ void CPhysicsHeightField::ComputeForce(SObjectData *Data)
                         m_avecPosition[id].z -= diff;
                         
                         // calculate torque vector
-                        vMultiplyToR(&force, &gravity, ratio * diff);
-                        vCrossProduct(&v, &r, &force);
-                        vAdd(&torque, &v);
+                        v3MultiplyToR(&force, &gravity, ratio * diff);
+                        v3CrossProduct(&v, &r, &force);
+                        v3Add(&torque, &v);
                     }
                 }
             }
         
         // compute and add force
-        vMultiplyToR(&force, &gravity, -1000.0f * totalDiff * m_fStep * m_fStep);
-        vAdd(Data->Force, &force);
+        v3MultiplyToR(&force, &gravity, -1000.0f * totalDiff * m_fStep * m_fStep);
+        v3Add(Data->Force, &force);
         // add torque
-        vAdd(Data->Torque, &torque);
+        v3Add(Data->Torque, &torque);
     }
     
 }

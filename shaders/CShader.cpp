@@ -689,7 +689,7 @@ bool CShaderHeightField::Init()
         m_gUniformModelView = glGetUniformLocation(m_gProgram, "modelview");
         m_gUniformProjection = glGetUniformLocation(m_gProgram, "projection");
         m_gUniformNormalMatrix = glGetUniformLocation(m_gProgram, "normalMatrix");
-        m_gUniformLightPosition = glGetUniformLocation(m_gProgram, "lightPosition");
+//        m_gUniformLightPosition = glGetUniformLocation(m_gProgram, "lightPosition");
         m_gUniformParticle = glGetUniformLocation(m_gProgram, "particleTexture");
         m_gUniformRadius = glGetUniformLocation(m_gProgram, "radius");
         

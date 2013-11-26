@@ -12,8 +12,7 @@
 #include <string>
 
 #include "Types.h"
-#include "matrix.h"
-#include "vector.h"
+#include "VQMMath.h"
 #include "CGameObject.h"
 
 // Message data types
@@ -46,11 +45,18 @@ typedef struct
     int NumberWidthHeight;
     int NumberHeightHeight;
     
-    float OriginX;
-    float OriginY;
-    float Level; // z coordinate
+    float_t OriginX;
+    float_t OriginY;
+    float_t Level; // z coordinate
+    float_t GridStep;
     
-    float GridStep;
+    // borders
+    float_t Left;
+    float_t Right;
+    float_t Top;
+    float_t Bottom;
+    
+    float_t ProtagonistRadius;
 } SHeightFieldProperty;
 
 // Material data

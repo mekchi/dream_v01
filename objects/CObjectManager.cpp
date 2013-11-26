@@ -26,6 +26,10 @@ CObjectManager::CObjectManager()
 
 bool CObjectManager::Init()
 {
+    CProtagonistSphere::Register();
+    CEnvironmentHF::Register();
+    
+    
     CDrawSphere::Register();
     CDrawSurface::Register();
     CPhysicsForce::Register();
@@ -62,33 +66,47 @@ void CObjectManager::Deinit()
 
 bool CObjectManager::Load()
 {
-    SHeightFieldProperty propertyHF = {32, 48, -16.0f, -24.0f, 0.0f, 1.0f};
+    SHeightFieldProperty propertyHF; //= {32, 48, -16.0f, -24.0f, 0.0f, 1.0f};
+    
     vector3 positionP = {0.0f, 0.0f, 3.0f};
+    
+    propertyHF.NumberWidthHeight = 32;
+    propertyHF.NumberHeightHeight = 48;
+    propertyHF.OriginX = -16.0f;
+    propertyHF.OriginY = -24.0f;
+    propertyHF.Level = 0.0f;
+    propertyHF.GridStep = 1.0f;
+    propertyHF.ProtagonistRadius = 1.41f;
+    propertyHF.Left = -11.0f;
+    propertyHF.Right = 11.0f;
+    propertyHF.Top = 19.0f;
+    propertyHF.Bottom = -19.0f;
+    
 //    SHeightFieldProperty propertyHF = {64, 96, -16.0f, -24.0f, 0.0f, 0.5f};
 //    SHeightFieldProperty propertyHF = {64, 96};
     
-    CGameObject* protagonist = CreateObject(GOI_PROTAGONIST);
-    CGameObject* environment = CreateObject(GOI_ENVIRONMENT);
-    
-    protagonist->SetPosition(&positionP);
-
-    IComponent* force = CreateComponent(CI_PHYSICS_FORCE);
-    IComponent* sphere = CreateComponent(CI_DRAW_SPHERE);
-
-    IComponent* heightfield = CreateComponent(CI_PHYSICS_HEIGHTFIELD);
-    IComponent* surface = CreateComponent(CI_DRAW_SURFACE);
-    
-    force->Init();
-    sphere->Init();
-    heightfield->Init(static_cast<void*>(&propertyHF));
-    surface->Init(static_cast<void*>(&propertyHF));
-    
-    AddComponent(protagonist, force);
-    AddComponent(environment, heightfield);
-
-    AddComponent(environment, surface);
-    AddComponent(protagonist, sphere);
-    
+//    CGameObject* protagonist = CreateObject(GOI_PROTAGONIST);
+//    CGameObject* environment = CreateObject(GOI_ENVIRONMENT);
+//    
+//    protagonist->SetPosition(&positionP);
+//
+//    IComponent* force = CreateComponent(CI_PHYSICS_FORCE);
+//    IComponent* sphere = CreateComponent(CI_DRAW_SPHERE);
+//
+//    IComponent* heightfield = CreateComponent(CI_PHYSICS_HEIGHTFIELD);
+//    IComponent* surface = CreateComponent(CI_DRAW_SURFACE);
+//    
+//    force->Init();
+//    sphere->Init();
+//    heightfield->Init(static_cast<void*>(&propertyHF));
+//    surface->Init(static_cast<void*>(&propertyHF));
+//    
+//    AddComponent(protagonist, force);
+//    AddComponent(environment, heightfield);
+//
+//    AddComponent(environment, surface);
+//    AddComponent(protagonist, sphere);
+//    
     
 //    CGameObject* box = CreateObject(GOI_BOX_COLOR);
 //    vector3 positionB = {0.0f, 4.0f, -2.0f};
@@ -100,9 +118,27 @@ bool CObjectManager::Load()
 //    AddComponent(box, simple);
 //
 //    simple->Init();
+    
+    
+    
+    
+    CGameObject* protagonist = CreateObject(GOI_PROTAGONIST);
+    IComponent* sphere = CreateComponent(CI_PROTAGONIST_SPHERE);
+    
+    protagonist->SetPosition(&positionP);
+    AddComponent(protagonist, sphere);
+    sphere->Init();
+    
+    CGameObject* environment = CreateObject(GOI_ENVIRONMENT);
+    IComponent* hf = CreateComponent(CI_ENVIRONMENT_HEIGHTFIELD);
 
-    BroadcastMessage(CMessage(MT_PROTAGONIST_POSITION, static_cast<void*>(protagonist->GetPosition())));
+    AddComponent(environment, hf);
+    hf->Init(static_cast<void*>(&propertyHF));
 
+    vector3 protagonistPosition;
+
+    protagonist->GetPosition(&protagonistPosition);
+    BroadcastMessage(CMessage(MT_PROTAGONIST_POSITION, static_cast<void*>(&protagonistPosition)));
 
     return true;
 }

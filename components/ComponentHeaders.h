@@ -9,6 +9,9 @@
 #ifndef dream_ComponentHeaders_h
 #define dream_ComponentHeaders_h
 
+#include "IProtagonist.h"
+#include "IEnvironment.h"
+
 #include "IDrawObject.h"
 #include "IPhysics.h"
 #include "IMiracleBox.h"

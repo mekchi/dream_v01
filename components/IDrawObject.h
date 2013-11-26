@@ -13,7 +13,7 @@
 #include "IComponent.h"
 #include "Ids.h"
 #include "DataTypes.h"
-#include "Vector.h"
+#include "VQMMath.h"
 
 class IMaterial;
 

@@ -7,38 +7,41 @@ varying vec3 H;
 
 void main()
 {
-    const vec3 la = vec3(0.9, 0.9, 0.9);
-    const vec3 ld = vec3(0.9, 0.9, 0.9);
-    const vec3 ls = vec3(1.0, 1.0, 1.0);
-    const vec3 ma = vec3(0.1, 0.1, 0.1);
-    const vec3 md = vec3(0.1, 0.1, 0.1);
-    const vec3 ms = vec3(1.0, 1.0, 1.0);
-    const float shiness = 50.0;
+//    const vec3 la = vec3(0.9, 0.9, 0.9);
+//    const vec3 ld = vec3(0.9, 0.9, 0.9);
+//    const vec3 ls = vec3(1.0, 1.0, 1.0);
+//    const vec3 ma = vec3(0.1, 0.1, 0.1);
+//    const vec3 md = vec3(0.1, 0.1, 0.1);
+//    const vec3 ms = vec3(1.0, 1.0, 1.0);
+//    const float shiness = 50.0;
+//    
+//    vec3 color = vec3(0.0, 0.0, 0.0);
+//    float dp;
+//    vec3 lv, nv;
+//    
+//    lv = normalize(L);
+//    nv = normalize(N);
+//    dp = max(dot(nv, lv), 0.0);
+//    
+//    if (dp > 0.0)
+//    {
+//        color = (la * ma) + (ld * md * dp)
+//            + (ls * ms * pow(
+//                             max(
+//                                 dot(
+//                                     //normalize(reflect(lv, nv)),
+//                                     nv,
+//                                     normalize(H)
+//                                     ),
+//                                 0.0),
+//                             shiness)
+//               );
+//    }
+//    
+//    gl_FragColor = vec4(color, 1.0);
     
-    vec3 color = vec3(0.0, 0.0, 0.0);
-    float dp;
-    vec3 lv, nv;
+    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
     
-    lv = normalize(L);
-    nv = normalize(N);
-    dp = max(dot(nv, lv), 0.0);
-    
-    if (dp > 0.0)
-    {
-        color = (la * ma) + (ld * md * dp)
-            + (ls * ms * pow(
-                             max(
-                                 dot(
-                                     //normalize(reflect(lv, nv)),
-                                     nv,
-                                     normalize(H)
-                                     ),
-                                 0.0),
-                             shiness)
-               );
-    }
-    
-    gl_FragColor = vec4(color, 1.0);
 //    if (nv.z < 1.0)
 //    {
 //        gl_FragColor = vec4(abs(nv.x), abs(nv.y), abs(nv.z), 1.0);

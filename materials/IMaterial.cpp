@@ -14,7 +14,7 @@
 #include "CShader.h"
 #include "Globals.h"
 #include "CObjectManager.h"
-#include "matrix.h"
+#include "VQMMath.h"
 #include "LoadTools.h"
 
 GLuint IMaterial::m_gMainTexFrameBuffer = 0;
@@ -224,8 +224,8 @@ bool CMaterialTexture::Init(SMaterialData* Data)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     
-    if (!loadBmpImage(Data->TextureFileName.c_str()))
-        return false;
+//    if (!loadBmpImage(Data->TextureFileName.c_str()))
+//        return false;
     
     return true;
 }
@@ -471,8 +471,8 @@ bool CMaterialWave::Init(SMaterialData* Data)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     
-    if (!loadBmpImage(Data->TextureFileName.c_str()))
-        return false;
+//    if (!loadBmpImage(Data->TextureFileName.c_str()))
+//        return false;
     
     return true;
 }
@@ -528,8 +528,8 @@ bool CMaterialHeightField::Init(SMaterialData* Data)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     
-    if (!loadBmpImage(Data->TextureFileName.c_str()))
-        return false;
+//    if (!loadBmpImage(Data->TextureFileName.c_str()))
+//        return false;
     
     return true;
 }

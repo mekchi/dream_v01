@@ -179,7 +179,7 @@ bool CDrawSurface::Init(void *Property)
     
     for (int i = 0; i < m_iTotalNumber; i++)
     {
-        vSet(&m_avecNormal[i], 0.0f, 0.0f, 1.0f);
+        v3Set(&m_avecNormal[i], 0.0f, 0.0f, 1.0f);
     }
     
     for (int i = 0; i < m_iNumberWidth - 1; i++)
@@ -343,10 +343,10 @@ void CDrawSurface::GetNormal(vector3* normal, vector3* p1, vector3* p2, vector3 
 {
     vector3 v1, v2;
     
-    vSubtracToR(&v1, p2, p1);
-    vSubtracToR(&v2, p3, p1);
-    vCrossProduct(normal, &v1, &v2);
-    vNormalize(normal);
+    v3SubtractToR(&v1, p2, p1);
+    v3SubtractToR(&v2, p3, p1);
+    v3CrossProduct(normal, &v1, &v2);
+    v3Normalize(normal);
     //if (normal->z < 0.0f) vMultiply(normal, -1.0f);
 }
 
@@ -371,14 +371,14 @@ void CDrawSurface::UpdateRenderBuffers(vector3* Vertices)
             GetNormal(&n5, &Vertices[ij], &Vertices[ij - m_iNumberHeight], &Vertices[ij -m_iNumberHeight - 1]);
             GetNormal(&n6, &Vertices[ij], &Vertices[ij - m_iNumberHeight - 1], &Vertices[ij - 1]);
             
-            vAdd(&n1, &n2);
-            vAdd(&n1, &n3);
-            vAdd(&n1, &n4);
-            vAdd(&n1, &n5);
-            vAdd(&n1, &n6);
-            vNormalize(&n1);
+            v3Add(&n1, &n2);
+            v3Add(&n1, &n3);
+            v3Add(&n1, &n4);
+            v3Add(&n1, &n5);
+            v3Add(&n1, &n6);
+            v3Normalize(&n1);
 
-            vCopy(&m_avecNormal[ij], &n1);
+            v3Copy(&m_avecNormal[ij], &n1);
         }
     
     glBindBuffer(GL_ARRAY_BUFFER, m_gVBO[0]);

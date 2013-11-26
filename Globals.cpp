@@ -79,6 +79,18 @@ int Globals::GetDefaultFramebuffer()
     return m_iDefaultFB;
 }
 
+vector3* Globals::GetGravity()
+{
+    static vector3 gravity = {0.0f, 0.0f, -9.8f};
+    
+    return &gravity;
+}
+
+void Globals::SetTranslation(vector3 *Translate)
+{
+    mSetTranslation(&m_matModelview, Translate->x, Translate->y, Translate->z);
+}
+
 void Globals::SetScreenWidth(float_t Width)
 {
     m_fScreenWidth = Width;

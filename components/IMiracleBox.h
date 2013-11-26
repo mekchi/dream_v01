@@ -12,7 +12,7 @@
 #include "IComponent.h"
 
 #include "Graphics.h"
-#include "Vector.h"
+#include "VQMMath.h"
 #include "CPS_Spark01.h"
 
 

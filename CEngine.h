@@ -31,6 +31,9 @@ public:
     
 private:
     
+    float_t m_fHalfWidth;
+    float_t m_fHalfHeight;
+    
     //SShaderUniformModelview m_sWorldTransformation;
     
 };

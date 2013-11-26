@@ -9,11 +9,9 @@
 #ifndef __dream__IMaterial__
 #define __dream__IMaterial__
 
-#include "Vector.h"
 #include "Ids.h"
 #include "DataTypes.h"
 #include "Graphics.h"
-#include "Matrix.h"
 #include "IDrawObject.h"
 
 class IMaterial

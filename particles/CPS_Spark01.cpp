@@ -61,10 +61,10 @@ bool CPS_Spark01::Init(void* Property)
 //    m_iFPS = prop->fps;
     m_iFrame = 0;
     
-    vSet(&m_avec3Position[0], p->x - 5.5f, p->y - 5.5f, p->z);
-    vSet(&m_avec3Position[1], p->x + 5.5f, p->y - 5.5f, p->z);
-    vSet(&m_avec3Position[2], p->x - 5.5f, p->y + 5.5f, p->z);
-    vSet(&m_avec3Position[3], p->x + 5.5f, p->y + 5.5f, p->z);
+    v3Set(&m_avec3Position[0], p->x - 5.5f, p->y - 5.5f, p->z);
+    v3Set(&m_avec3Position[1], p->x + 5.5f, p->y - 5.5f, p->z);
+    v3Set(&m_avec3Position[2], p->x - 5.5f, p->y + 5.5f, p->z);
+    v3Set(&m_avec3Position[3], p->x + 5.5f, p->y + 5.5f, p->z);
     
     m_avec2UV[0].x = 0.0f;
     m_avec2UV[0].y = 0.0f;

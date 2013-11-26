@@ -14,9 +14,9 @@ CGameObject::CGameObject(E_GAMEOBJECT_ID Id)
 {
     m_eId = Id;
     mSetIdentity(&m_matTransformation);
-    vSetZero(&m_vecPosition);
+    v3SetZero(&m_vecPosition);
     
-    vSetZero(&m_vecRotation);
+    v3SetZero(&m_vecRotation);
     qSetIdentity(&m_quatRotation);
     mSetIdentity(&m_matRotation);
     
@@ -29,14 +29,14 @@ E_GAMEOBJECT_ID CGameObject::GetObjectId()
     return m_eId;
 }
 
-void CGameObject::SetPosition(vector3* NewPosition)
+void CGameObject::SetPosition(vector3 *NewPosition)
 {
-    vCopy(&m_vecPosition, NewPosition);
+    v3Copy(&m_vecPosition, NewPosition);
 }
 
-vector3* CGameObject::GetPosition()
+void CGameObject::GetPosition(vector3 *ToPosition)
 {
-    return &m_vecPosition;
+    v3Copy(ToPosition, &m_vecPosition);
 }
 
 void CGameObject::SetRotation(float angle, vector3 *vector)
@@ -44,7 +44,7 @@ void CGameObject::SetRotation(float angle, vector3 *vector)
     quaternion temp;
     
     qSetIdentity(&temp);
-    vAxisToQuaternion(&temp, vector, angle);
+    v3AxisToQuaternion(&temp, vector, angle);
     qMultiply(&m_quatRotation, &temp);
 
     qNormalize(&m_quatRotation); // important to normalize
@@ -61,13 +61,13 @@ void CGameObject::SetRotation(vector3* NewRotation)
     vector3 axis;
     float angle;
     
-    vCopy(&m_vecRotation, NewRotation);
+    v3Copy(&m_vecRotation, NewRotation);
 
-    vCopy(&axis, &m_vecRotation);
-    angle = vMagnitude(&axis);
-    vNormalize(&axis);
+    v3Copy(&axis, &m_vecRotation);
+    angle = v3Magnitude(&axis);
+    v3Normalize(&axis);
 
-    vAxisToQuaternion(&m_quatRotation, &axis, angle);
+    v3AxisToQuaternion(&m_quatRotation, &axis, angle);
     //qMultiply(&m_quatRotation, &q);
     qNormalize(&m_quatRotation);
 }

@@ -134,7 +134,11 @@ void CMiracleBox00::Render()
 
 bool CMiracleBox01::Init(void *Property)
 {
-    SPS_Spark01_Property prop = {0, m_opObject->GetPosition()};
+    vector3 position;
+    
+    m_opObject->GetPosition(&position);
+    
+    SPS_Spark01_Property prop = {0, &position};
     
     m_oSpark.Init(static_cast<void*>(&prop));
     

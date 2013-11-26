@@ -13,8 +13,8 @@
 
 #include "Ids.h"
 #include "IComponent.h"
-#include "Matrix.h"
-#include "Vector.h"
+#include "VQMMath.h"
+
 
 class CObjectManager;
 
@@ -28,7 +28,7 @@ public:
     E_GAMEOBJECT_ID GetObjectId();
 
     void SetPosition(vector3* NewPosition);
-    vector3* GetPosition();
+    void GetPosition(vector3* ToPosition);
     
     void SetRotation(float angle, vector3* vector);
     void SetRotation(quaternion* NewRotation);

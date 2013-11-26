@@ -148,7 +148,8 @@ GLfloat gCubeVertexData[216] =
 {
     [EAGLContext setCurrentContext:self.context];
     
-
+//    GLKMatrix4MakeOrtho(<#float left#>, <#float right#>, <#float bottom#>, <#float top#>, <#float nearZ#>, <#float farZ#>)
+    
 //    [self loadShaders];
     
 //    self.effect = [[GLKBaseEffect alloc] init];
@@ -163,6 +164,14 @@ GLfloat gCubeVertexData[216] =
     //float aspect = fabsf(self.view.bounds.size.width / self.view.bounds.size.height);
     
     NSString *path = [[NSBundle mainBundle] bundlePath];
+    
+//    path = [path stringByAppendingString:@"/protagonist.png"];
+    
+//    NSString *path = [[NSBundle mainBundle] pathForResource:@"sample" ofType:@"png"];
+//    NSData *rawData = [NSData dataWithContentsOfFile:path];
+//    NSLog(@"%d", rawData.length);
+//    
+//    long long fileSize = [[[NSFileManager defaultManager] attributesOfItemAtPath:path error:nil][NSFileSize] longLongValue];
     
 //    Globals::AssignResourcePath([path UTF8String]);
     GLint fb, df;

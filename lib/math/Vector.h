@@ -36,124 +36,132 @@ typedef union
     float_t v[3];
 } vector3;
 
-static inline void vSetZero(vector3 *v);
-static inline void vCopy(vector3 *a, vector3 *b);
-static inline void vSet(vector3 *v, float_t x, float_t y, float_t z);
-static inline void vAdd(vector3 *a, vector3 *b);
-static inline void vAddToR(vector3 *r, vector3 *a, vector3 *b);
-static inline void vSubtract(vector3 *a, vector3 *b);
-static inline void vSubtractToR(vector3 *r, vector3 *a, vector3 *b);
-static inline void vMultiply(vector3 *v, float_t c);
-static inline void vMultiplyToR(vector3 *r, vector3 *v, float_t c);
-static inline void vDivide(vector3 *v, float_t c);
-static inline void vDivideToR(vector3 *r, vector3 *v, float_t c);
-static inline float_t vSquaredMagnitude(vector3 *v);
-static inline float_t vMagnitude(vector3 *v);
-static inline float_t vDotProduct(vector3 *a, vector3 *b);
-static inline void vNormalize(vector3 *v);
-static inline void vCrossProduct(vector3 *r, vector3 *a, vector3 *b);
-static inline void vAxisToQuaternion(quaternion *q, vector3 *v, float_t phi);
-static inline int vIsEqual(vector3 *a, vector3 *b);
-static inline void vAngularVelocityToQuaternion(quaternion *qOut, vector3 *vIn);
+    
+    
+static inline void v2SetZero(vector2 *Vector);
+static inline void v2Copy(vector2 *To, vector2 *From);
+static inline void v2PerpendicularCCW(vector2 *Result, vector2 *Vector);
+static inline void v2PerpendicularCW(vector2 *Result, vector2 *Vector);
+    
+
+static inline void v3SetZero(vector3 *v);
+static inline void v3Copy(vector3 *a, vector3 *b);
+static inline void v3Set(vector3 *v, float_t x, float_t y, float_t z);
+static inline void v3Add(vector3 *a, vector3 *b);
+static inline void v3AddToR(vector3 *r, vector3 *a, vector3 *b);
+static inline void v3Subtract(vector3 *a, vector3 *b);
+static inline void v3SubtractToR(vector3 *r, vector3 *a, vector3 *b);
+static inline void v3Multiply(vector3 *v, float_t c);
+static inline void v3MultiplyToR(vector3 *r, vector3 *v, float_t c);
+static inline void v3Divide(vector3 *v, float_t c);
+static inline void v3DivideToR(vector3 *r, vector3 *v, float_t c);
+static inline float_t v3SquaredMagnitude(vector3 *v);
+static inline float_t v3Magnitude(vector3 *v);
+static inline float_t v3DotProduct(vector3 *a, vector3 *b);
+static inline void v3Normalize(vector3 *v);
+static inline void v3CrossProduct(vector3 *r, vector3 *a, vector3 *b);
+static inline void v3AxisToQuaternion(quaternion *q, vector3 *v, float_t phi);
+static inline int v3IsEqual(vector3 *a, vector3 *b);
+static inline void v3AngularVelocityToQuaternion(quaternion *qOut, vector3 *vIn);
 
         
 // implementation
     
-static inline void vSetZero(vector3 *v)
+static inline void v3SetZero(vector3 *v)
 {
     v->x = 0;
     v->y = 0;
     v->z = 0;
 }
 
-static inline void vCopy(vector3 *a, vector3 *b)
+static inline void v3Copy(vector3 *a, vector3 *b)
 {
     a->x = b->x;
     a->y = b->y;
     a->z = b->z;
 }
 
-static inline void vSet(vector3 *v, float_t x, float_t y, float_t z)
+static inline void v3Set(vector3 *v, float_t x, float_t y, float_t z)
 {
     v->x = x;
     v->y = y;
     v->z = z;
 }
 
-static inline void vAdd(vector3 *a, vector3 *b)
+static inline void v3Add(vector3 *a, vector3 *b)
 {
     a->x += b->x;
     a->y += b->y;
     a->z += b->z;
 }
 
-static inline void vAddToR(vector3 *r, vector3 *a, vector3 *b)
+static inline void v3AddToR(vector3 *r, vector3 *a, vector3 *b)
 {
     r->x = a->x + b->x;
     r->y = a->y + b->y;
     r->z = a->z + b->z;
 }
 
-static inline void vSubtract(vector3 *a, vector3 *b)
+static inline void v3Subtract(vector3 *a, vector3 *b)
 {
     a->x -= b->x;
     a->y -= b->y;
     a->z -= b->z;
 }
 
-static inline void vSubtracToR(vector3 *r, vector3 *a, vector3 *b)
+static inline void v3SubtracToR(vector3 *r, vector3 *a, vector3 *b)
 {
     r->x = a->x - b->x;
     r->y = a->y - b->y;
     r->z = a->z - b->z;
 }
 
-static inline void vMultiply(vector3 *v, float_t c)
+static inline void v3Multiply(vector3 *v, float_t c)
 {
     v->x *= c;
     v->y *= c;
     v->z *= c;
 }
 
-static inline void vMultiplyToR(vector3 *r, vector3 *v, float_t c)
+static inline void v3MultiplyToR(vector3 *r, vector3 *v, float_t c)
 {
     r->x = v->x * c;
     r->y = v->y * c;
     r->z = v->z * c;
 }
 
-static inline void vDivide(vector3 *v, float_t c)
+static inline void v3Divide(vector3 *v, float_t c)
 {
     v->x /= c;
     v->y /= c;
     v->z /= c;
 }
 
-static inline void vDivideToR(vector3 *r, vector3 *v, float_t c)
+static inline void v3DivideToR(vector3 *r, vector3 *v, float_t c)
 {
     r->x = v->x / c;
     r->y = v->y / c;
     r->z = v->z / c;
 }
 
-static inline float_t vSquaredMagnitude(vector3 *v)
+static inline float_t v3SquaredMagnitude(vector3 *v)
 {
     return ((v->x * v->x) + (v->y * v->y) + (v->z * v->z));
 }
 
-static inline float_t vMagnitude(vector3 *v)
+static inline float_t v3Magnitude(vector3 *v)
 {    
-    return fastSqrt(vSquaredMagnitude(v));
+    return fastSqrt(v3SquaredMagnitude(v));
 }
 
-static inline float_t vDotProduct(vector3 *a, vector3 *b)
+static inline float_t v3DotProduct(vector3 *a, vector3 *b)
 {
     return ((a->x * b->x) + (a->y * b->y) + (a->z * b->z));
 }
 
-static inline void vNormalize(vector3 *v)
+static inline void v3Normalize(vector3 *v)
 {
-    float_t c = vMagnitude(v);
+    float_t c = v3Magnitude(v);
 
     if (c != 0.0f)
     {
@@ -163,7 +171,7 @@ static inline void vNormalize(vector3 *v)
     }
 }
 
-static inline void vCrossProduct(vector3 *r, vector3 *a, vector3 *b)
+static inline void v3CrossProduct(vector3 *r, vector3 *a, vector3 *b)
 {
     r->x = (a->y * b->z) - (a->z * b->y);
     r->y = (a->z * b->x) - (a->x * b->z);
@@ -171,7 +179,7 @@ static inline void vCrossProduct(vector3 *r, vector3 *a, vector3 *b)
 }
 
 // converting a 3d vector to a quaternion
-static inline void vAxisToQuaternion(quaternion *q, vector3 *v, float_t phi)
+static inline void v3AxisToQuaternion(quaternion *q, vector3 *v, float_t phi)
 {
     float_t halfAngle = phi * 0.5f;
     float_t alpha = sinf(halfAngle);
@@ -182,17 +190,17 @@ static inline void vAxisToQuaternion(quaternion *q, vector3 *v, float_t phi)
     q->w = cosf(halfAngle);
 }
     
-static inline int vIsEqual(vector3 *a, vector3 *b)
+static inline int v3IsEqual(vector3 *a, vector3 *b)
 {
     return memcmp(a, b, sizeof(vector3)) == 0;
 }
 
-static inline int vIsGreater(vector3 *a, vector3 *b)
+static inline int v3IsGreater(vector3 *a, vector3 *b)
 {
     return (a->x > b->x || a->y > b->y || a->z > b->z);
 }
     
-static inline void vAngularVelocityToQuaternion(quaternion *qOut, vector3 *vIn)
+static inline void v3AngularVelocityToQuaternion(quaternion *qOut, vector3 *vIn)
 {
     qOut->x = vIn->x;
     qOut->y = vIn->y;

@@ -11,7 +11,7 @@
 
 #include "IParticleSystem.h"
 #include "Graphics.h"
-#include "Vector.h"
+#include "VQMMath.h"
 
 typedef struct
 {

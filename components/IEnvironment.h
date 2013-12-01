@@ -50,8 +50,8 @@ public:
 private:
     
     void Update(float DeltaTime);
-    void UpdatePhysics(float_t DeltaTime);
-    void UpdateGraphics(float_t DeltaTime);
+    void UpdatePhysics(float DeltaTime);
+    void UpdateGraphics(float DeltaTime);
     
     void UpdateTouch(float DeltaTime);
     
@@ -74,13 +74,13 @@ private:
     float m_fStep; // square grid step
 
     vector3* m_avecPosition;
-    float_t *m_afHeightBuffer;
+    float *m_afHeightBuffer;
     float* m_afVelocity;
     float* m_afVelocityContinuous;
     
     /* protagonist */
     
-    float_t m_fRadius; // radius of the protagonist
+    float m_fRadius; // radius of the protagonist
     
     
     /* graphics */
@@ -97,21 +97,21 @@ private:
     
     /* touch */
     
-    float_t m_fBorderLeft;
-    float_t m_fBorderRight;
-    float_t m_fBorderTop;
-    float_t m_fBorderBottom;
+    float m_fBorderLeft;
+    float m_fBorderRight;
+    float m_fBorderTop;
+    float m_fBorderBottom;
 
-    float_t m_fWaveRadius;
-    float_t m_fRadiusRatio; // ratio of radius decrease rate
+    float m_fWaveRadius;
+    float m_fRadiusRatio; // ratio of radius decrease rate
     E_PROTAGONIST_STATUS m_eStatusProtagonist;
     E_ENVIRONMENT_STATUS m_eStatus;
     
     vector3 m_vecCameraDirection;
 
     vector3 m_vecTouchDirection;
-    float_t m_fTouchLength;
-    float_t m_fTouchDamping;
+    float m_fTouchLength;
+    float m_fTouchDamping;
 };
 
 #endif /* defined(__dream__IEnvironment__) */

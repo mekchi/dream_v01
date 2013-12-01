@@ -9,10 +9,11 @@
 #include "Globals.h"
 
 std::string Globals::m_sResourcePath("");
+matrix44 Globals::m_matDefaultModelview;
 matrix44 Globals::m_matModelview;
 matrix44 Globals::m_matProjection;
-float_t Globals::m_fScreenWidth = 0.0f;
-float_t Globals::m_fScreenHeight = 0.0f;
+float Globals::m_fScreenWidth = 0.0f;
+float Globals::m_fScreenHeight = 0.0f;
 CObjectManager Globals::m_oObjectManager;
 CSoundManager Globals::m_oSoundManager;
 int Globals::m_iDefaultFB = 0;
@@ -44,9 +45,9 @@ std::string& Globals::GetResourcePath()
     return m_sResourcePath;
 }
 
-void Globals::SetModelviewMatrix(matrix44 *Matrix)
+void Globals::SetDefaultModelviewMatrix(matrix44 *Matrix)
 {
-    mCopy(&m_matModelview, Matrix);
+    mCopy(&m_matDefaultModelview, Matrix);
 }
 
 matrix44* Globals::GetModelviewMatrix()
@@ -64,12 +65,12 @@ matrix44* Globals::GetProjectionMatrix()
     return &m_matProjection;
 }
 
-float_t Globals::GetScreenWidth()
+float Globals::GetScreenWidth()
 {
     return m_fScreenWidth;
 }
 
-float_t Globals::GetScreenHeight()
+float Globals::GetScreenHeight()
 {
     return m_fScreenHeight;
 }
@@ -88,15 +89,25 @@ vector3* Globals::GetGravity()
 
 void Globals::SetTranslation(vector3 *Translate)
 {
-    mSetTranslation(&m_matModelview, Translate->x, Translate->y, Translate->z);
+    matrix44 m;
+    
+    mCopy(&m_matModelview, &m_matDefaultModelview);
+    mSetIdentity(&m);
+    mSetTranslation(&m, Translate->x, Translate->y, Translate->z);
+    mMultiply(&m_matModelview, &m);
 }
 
-void Globals::SetScreenWidth(float_t Width)
+void Globals::ResetModelview()
+{
+    mCopy(&m_matModelview, &m_matDefaultModelview);
+}
+
+void Globals::SetScreenWidth(float Width)
 {
     m_fScreenWidth = Width;
 }
 
-void Globals::SetScreenHeight(float_t Height)
+void Globals::SetScreenHeight(float Height)
 {
     m_fScreenHeight = Height;
 }

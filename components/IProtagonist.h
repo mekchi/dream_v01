@@ -55,26 +55,35 @@ private:
     void Touch(vector3* Point);
     
     /* graphics */
-    
-    GLuint m_gTexture;
+
+    GLuint m_gVAOQuad;
+    GLuint m_gVBOQuad;
+    GLuint m_gFB;
+    GLuint m_gRB;
+    GLuint m_gTexture[2];
+    GLfloat m_gTextureWidth;
+    GLfloat m_gTextureHeight;
+
+    GLuint m_gProtagonistTexture;
     GLuint m_gVAO;
     GLuint m_gVBO;
     GLuint m_gIndices;
+    
     
     int m_iNumFaceVertex;
     
     /* physics */
     
-    float_t m_fRadius;
-    float_t m_fMass;
+    float m_fRadius;
+    float m_fMass;
     
     vector3 m_vecForce;
     vector3 m_vecTorque;
     vector3 m_vecPull;
     vector3 m_vecLinearVelocity;
     vector3 m_vecAngularVelocity;
-    float_t m_fLinearDamping;
-    float_t m_fAngularDamping;
+    float m_fLinearDamping;
+    float m_fAngularDamping;
     
     /* touch */
     E_PROTAGONIST_STATUS m_eStatus;

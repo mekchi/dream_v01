@@ -1,8 +1,10 @@
 
 precision mediump float;
 
+//uniform sampler2D frame;
 uniform sampler2D texture0;
 uniform sampler2D texture1;
+
 
 varying vec2 uv;
 

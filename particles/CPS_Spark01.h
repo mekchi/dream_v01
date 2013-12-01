@@ -37,7 +37,7 @@ private:
     
     GLuint m_gVAO;
     GLuint m_gVBO[2];
-    GLuint m_gTexture;
+    GLuint m_gTexture;//[2];
     
 //    float m_afQuad[30];
 
@@ -46,6 +46,8 @@ private:
     
 //    int m_iFPS;
     int m_iFrame;
+    
+    float m_fZoom;
 
 //    float m_fEnergy;
 //    vector3 m_fPosition;

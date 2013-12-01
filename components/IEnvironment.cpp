@@ -53,11 +53,11 @@ bool CEnvironmentHF::Init(void* Property)
     m_fTouchDamping = 0.9f;
     
     m_avecPosition = new vector3[m_iTotalNumber];
-    m_afHeightBuffer = new float_t[m_iTotalNumber];
+    m_afHeightBuffer = new float[m_iTotalNumber];
     m_afVelocity = new float[m_iTotalNumber];
     m_afVelocityContinuous = new float[m_iTotalNumber];
     
-    float_t angle = m_fStep * 0.2618f;
+    float angle = m_fStep * 0.393f;
     float x, y, z;
     int id;
     
@@ -72,12 +72,13 @@ bool CEnvironmentHF::Init(void* Property)
             y = m_fOriginY + ((float)j) * m_fStep;
             
             if (i % 2 == 0)
-                z = 0.01f * cosf(angle * (float_t)j);
+                z = 0.5f * cosf(angle * (float)j);
             else
-                z = 0.01f * sinf(angle * (float_t)j);
+                z = 0.5f * cosf((angle + 1.57f) * (float)j);
 
-            m_afVelocityContinuous[id] = z;
-//            m_afVelocityContinuous[id] = 0.09f - ((float_t)(rand() % 900) / 10000.0f);
+            m_afVelocityContinuous[id] = 0.0f;
+//            m_afVelocityContinuous[id] = z;
+//            m_afVelocityContinuous[id] = 0.09f - ((float)(rand() % 900) / 10000.0f);
             
             v3Set(&m_avecPosition[id], x, y, m_fLevel + m_afVelocityContinuous[id]);
             
@@ -104,13 +105,27 @@ bool CEnvironmentHF::Init(void* Property)
         for (int j = 0; j < m_iNumberHeight - 1; j++)
         {
             id = i * m_iNumberHeight + j;
-            m_aiIndex[k++] = id;
-            m_aiIndex[k++] = id + m_iNumberHeight;
-            m_aiIndex[k++] = id + m_iNumberHeight + 1;
             
-            m_aiIndex[k++] = id;
-            m_aiIndex[k++] = id + m_iNumberHeight + 1;
-            m_aiIndex[k++] = id + 1;
+//            if ((i + j) % 2 == 0)
+//            {
+                m_aiIndex[k++] = id;
+                m_aiIndex[k++] = id + m_iNumberHeight;
+                m_aiIndex[k++] = id + m_iNumberHeight + 1;
+                
+                m_aiIndex[k++] = id;
+                m_aiIndex[k++] = id + m_iNumberHeight + 1;
+                m_aiIndex[k++] = id + 1;
+//            }
+//            else
+//            {
+//                m_aiIndex[k++] = id;
+//                m_aiIndex[k++] = id + m_iNumberHeight;
+//                m_aiIndex[k++] = id + 1;
+//                
+//                m_aiIndex[k++] = id + m_iNumberHeight;
+//                m_aiIndex[k++] = id + m_iNumberHeight + 1;
+//                m_aiIndex[k++] = id + 1;
+//            }
         }
     
     glGenVertexArraysOES(1, &m_gVAO);
@@ -223,15 +238,15 @@ void CEnvironmentHF::Destroy(IComponent *Component)
     delete Component;
 }
 
-void CEnvironmentHF::Update(float_t DeltaTime)
+void CEnvironmentHF::Update(float DeltaTime)
 {
     UpdatePhysics(DeltaTime);
     UpdateGraphics(DeltaTime);
 }
 
-void CEnvironmentHF::UpdatePhysics(float_t DeltaTime)
+void CEnvironmentHF::UpdatePhysics(float DeltaTime)
 {
-    const float speed = 6.0f;
+    const float speed = 3.0f;
     const float ratio = (speed * speed) / (m_fStep * m_fStep);
     const int lastX = (m_iNumberWidth - 1) * m_iNumberHeight;
     const int beforeLastX = (m_iNumberWidth - 2) * m_iNumberHeight;
@@ -262,8 +277,8 @@ void CEnvironmentHF::UpdatePhysics(float_t DeltaTime)
             {
                 ij = i * m_iNumberHeight + j;
                 
-//                m_avecPosition[ij].z += m_afVelocityContinuous[ij] + m_afVelocity[ij] * DeltaTime;
-                m_avecPosition[ij].z += m_afVelocity[ij] * DeltaTime;
+                m_avecPosition[ij].z += m_afVelocityContinuous[ij] + m_afVelocity[ij] * DeltaTime;
+//                m_avecPosition[ij].z += m_afVelocity[ij] * DeltaTime;
 
                 m_afVelocity[ij] *= 0.99;
             }
@@ -291,7 +306,7 @@ void CEnvironmentHF::UpdatePhysics(float_t DeltaTime)
             m_avecPosition[i].z += m_avecPosition[m_iNumberHeight + i].z * speed * DeltaTime;
             m_avecPosition[i].z /= m_fStep + speed * DeltaTime;
             
-            //        m_avecPosition[i].z = (float_t)(rand() % 100) / 100.0f;
+            //        m_avecPosition[i].z = (float)(rand() % 100) / 100.0f;
             
             m_avecPosition[lastX + i].z *= m_fStep;
             m_avecPosition[lastX + i].z += m_avecPosition[beforeLastX + i].z * speed * DeltaTime;
@@ -325,7 +340,7 @@ void CEnvironmentHF::GetNormal(vector3* normal, vector3* p1, vector3* p2, vector
     //if (normal->z < 0.0f) vMultiply(normal, -1.0f);
 }
 
-void CEnvironmentHF::UpdateGraphics(float_t DeltaTime)
+void CEnvironmentHF::UpdateGraphics(float DeltaTime)
 {
     int ij = 0;
     vector3 n1, n2, n3, n4, n5, n6;
@@ -335,25 +350,26 @@ void CEnvironmentHF::UpdateGraphics(float_t DeltaTime)
         {
             ij = i * m_iNumberHeight + j;
             
-            //            m_avecNormal[ij].x = (Vertices[ij - m_iNumberHeight].z - Vertices[ij + m_iNumberHeight].z) * 0.5f;
-            //            m_avecNormal[ij].y = (Vertices[ij - 1].z - Vertices[ij + 1].z) * 0.5;
-            //            m_avecNormal[ij].z = 4.0f;
+            m_avecNormal[ij].x = m_avecPosition[ij - m_iNumberHeight].z - m_avecPosition[ij + m_iNumberHeight].z;
+            m_avecNormal[ij].y = m_avecPosition[ij - 1].z - m_avecPosition[ij + 1].z;
+            m_avecNormal[ij].z = 1.0f;
             
-            GetNormal(&n1, &m_avecPosition[ij], &m_avecPosition[ij - 1], &m_avecPosition[ij + m_iNumberHeight]);
-            GetNormal(&n2, &m_avecPosition[ij], &m_avecPosition[ij + m_iNumberHeight], &m_avecPosition[ij + m_iNumberHeight + 1]);
-            GetNormal(&n3, &m_avecPosition[ij], &m_avecPosition[ij + m_iNumberHeight + 1], &m_avecPosition[ij + 1]);
-            GetNormal(&n4, &m_avecPosition[ij], &m_avecPosition[ij + 1], &m_avecPosition[ij - m_iNumberHeight]);
-            GetNormal(&n5, &m_avecPosition[ij], &m_avecPosition[ij - m_iNumberHeight], &m_avecPosition[ij -m_iNumberHeight - 1]);
-            GetNormal(&n6, &m_avecPosition[ij], &m_avecPosition[ij - m_iNumberHeight - 1], &m_avecPosition[ij - 1]);
+//            GetNormal(&n1, &m_avecPosition[ij], &m_avecPosition[ij - 1], &m_avecPosition[ij + m_iNumberHeight]);
+//            GetNormal(&n2, &m_avecPosition[ij], &m_avecPosition[ij + m_iNumberHeight], &m_avecPosition[ij + m_iNumberHeight + 1]);
+//            GetNormal(&n3, &m_avecPosition[ij], &m_avecPosition[ij + m_iNumberHeight + 1], &m_avecPosition[ij + 1]);
+//            GetNormal(&n4, &m_avecPosition[ij], &m_avecPosition[ij + 1], &m_avecPosition[ij - m_iNumberHeight]);
+//            GetNormal(&n5, &m_avecPosition[ij], &m_avecPosition[ij - m_iNumberHeight], &m_avecPosition[ij -m_iNumberHeight - 1]);
+//            GetNormal(&n6, &m_avecPosition[ij], &m_avecPosition[ij - m_iNumberHeight - 1], &m_avecPosition[ij - 1]);
+//            
+//            v3Add(&n1, &n2);
+//            v3Add(&n1, &n3);
+//            v3Add(&n1, &n4);
+//            v3Add(&n1, &n5);
+//            v3Add(&n1, &n6);
+//            v3Normalize(&n1);
             
-            v3Add(&n1, &n2);
-            v3Add(&n1, &n3);
-            v3Add(&n1, &n4);
-            v3Add(&n1, &n5);
-            v3Add(&n1, &n6);
-            v3Normalize(&n1);
-            
-            v3Copy(&m_avecNormal[ij], &n1);
+//              v3Copy(&m_avecNormal[ij], &n1);
+            v3Normalize(&m_avecNormal[ij]);
         }
     
     glBindBuffer(GL_ARRAY_BUFFER, m_gVBO[0]);
@@ -392,7 +408,7 @@ void CEnvironmentHF::UpdateTouch(float DeltaTime)
     
     if (m_eStatus == ENVS_CAMERA_MOVE)
     {
-        static float_t t = 0.0f;
+        static float t = 0.0f;
         vector3 translate;
         
         t += DeltaTime;
@@ -406,7 +422,7 @@ void CEnvironmentHF::UpdateTouch(float DeltaTime)
             
             for (int i = 0; i < m_iTotalNumber; i++)
             {
-                m_afHeightBuffer[i] = m_avecPosition[i].z;
+//                m_afHeightBuffer[i] = m_avecPosition[i].z;
                 m_afVelocity[i] = 0.0f;
             }
             
@@ -418,15 +434,20 @@ void CEnvironmentHF::UpdateTouch(float DeltaTime)
             for (int i = 0; i < centerx - 1; i++)
                 for (int j = 0; j < centery - 1; j++)
                 {
-                    m_avecPosition[((leftx + i) * m_iNumberHeight) + lefty + j].z = m_afHeightBuffer[((cornerx + i) * m_iNumberHeight) + cornery + j];
+                    m_avecPosition[((leftx + i) * m_iNumberHeight) + lefty + j].z =
+                    m_avecPosition[((cornerx + i) * m_iNumberHeight) + cornery + j].z;
+                    
+                    m_avecPosition[((cornerx + i) * m_iNumberHeight) + cornery + j].z = 0.0f;
+                    //m_afHeightBuffer[((cornerx + i) * m_iNumberHeight) + cornery + j];
                 }
 
             
             //t = 1.0f;
             m_eStatus = ENVS_IDLE;
             t = 0.0f;
-            v3SetZero(&translate);
-            Globals::SetTranslation(&translate);
+            //v3SetZero(&translate);
+            //Globals::SetTranslation(&translate);
+            Globals::ResetModelview();
             
             v3Subtract(&m_vecProtagonist, &m_vecCameraDirection);
             
@@ -450,7 +471,7 @@ void CEnvironmentHF::UpdateTouch(float DeltaTime)
     
     
 //    vector3 vn, vt, v;
-//    float_t t = 0.0f;
+//    float t = 0.0f;
 //    int ij = 0, x = 0, y = 0;
 //    int radiusCells = (int)(m_fRadius / m_fStep);
 //    int diameterCells = radiusCells * 2;
@@ -494,7 +515,7 @@ void CEnvironmentHF::Render()
     
     glUniformMatrix4fv(CShader::GetShader(ST_HF)->GetUnivormLocation(SUL_MODELVIEW), 1, GL_FALSE, temp.m);
     glUniformMatrix4fv(CShader::GetShader(ST_HF)->GetUnivormLocation(SUL_NORMALMATRIX), 1, GL_FALSE, invertTemp.m);
-//    glUniform3fv(CShader::GetShader(ST_HF)->GetUnivormLocation(SUL_LIGHTPOSITION), 1, Data->LightPosition->v);
+    glUniform3fv(CShader::GetShader(ST_HF)->GetUnivormLocation(SUL_LIGHTPOSITION), 1, m_vecProtagonist.v);
 //    glActiveTexture(GL_TEXTURE0);
 //    glBindTexture(GL_TEXTURE_2D, m_gTexture);
 //    glUniform1i(CShader::GetShader(ST_HF)->GetUnivormLocation(SUL_TEXTURE0), 0);
@@ -511,8 +532,8 @@ void CEnvironmentHF::Touch(vector3 *Point)
     
     
 //    vector3 vn, vt, v;
-//    float_t length = v3Magnitude(Point);
-//    float_t t = 0.0f;
+//    float length = v3Magnitude(Point);
+//    float t = 0.0f;
 //    int ij = 0, x = 0, y = 0;
 //    int radiusCells = (int)(m_fRadius / m_fStep);
 //    int diameterCells = radiusCells * 2;
@@ -556,10 +577,10 @@ void CEnvironmentHF::ComputeForce(SObjectData *Data)
 {
     vector3 center = Data->position;
     vector3 ft, v, r;
-    float_t radius = Data->Radius;
-    float_t diff = 0.0f, totalDiff = 0.0f, maxDiff = 0.0f;
+    float radius = Data->Radius;
+    float diff = 0.0f, totalDiff = 0.0f, maxDiff = 0.0f;
     int id, idx, idy, n;
-    float_t ax, ay, length2;
+    float ax, ay, length2;
     
     v3Copy(&m_vecProtagonist, &center);
     

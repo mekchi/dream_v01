@@ -12,7 +12,6 @@
 #include <stdio.h>
 #include <string>
 
-#include "Types.h"
 #include "Log.h"
 #include "Globals.h"
 
@@ -92,7 +91,7 @@ bool CLoaderMek::Load(const char* FileName)
         {
             // formula: n = NumFace * 3(points) * (3 + 3 + 2)(position, normal and UV
             int n = m_iNumFace * 3 * (3 + 3 + 2);
-            m_avecVertexNormalUV = new float_t[n];
+            m_avecVertexNormalUV = new float[n];
             memcpy(m_avecVertexNormalUV, offset, dataSize);
             
             free(buffer);
@@ -118,7 +117,7 @@ int CLoaderMek::GetSize()
     return m_iNumFace * 3 * 4 * (3 + 3 + 2);
 }
 
-float_t* CLoaderMek::GetData()
+float* CLoaderMek::GetData()
 {
     return m_avecVertexNormalUV;
 }

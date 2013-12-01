@@ -595,8 +595,8 @@ void CDrawSurface::Render()
 //
 //void CHeightField::Touch(STouchData *Data)
 //{    
-//    int x = (int)((float_t)(HEIGHTFIELD_W - 1) * (0.5f + Data->x *  (1.0f / Globals::GetScreenWidth())));
-//    int y = (int)((float_t)(HEIGHTFIELD_H - 1) * (0.5f + Data->y * (1.0f / Globals::GetScreenHeight())));
+//    int x = (int)((float)(HEIGHTFIELD_W - 1) * (0.5f + Data->x *  (1.0f / Globals::GetScreenWidth())));
+//    int y = (int)((float)(HEIGHTFIELD_H - 1) * (0.5f + Data->y * (1.0f / Globals::GetScreenHeight())));
 //    
 //    m_afHeight[x * HEIGHTFIELD_H + y] -= 2.0f;
 //}
@@ -809,8 +809,8 @@ void CDrawSurface::Render()
 //void CHeightFieldQuad::Touch(STouchData *Data)
 //{
 //    
-//    int x = (int)((float_t)(m_iNumWeightWidth - 2) * (0.5f + Data->x *  (1.0f / Globals::GetScreenWidth())));
-//    int y = (int)((float_t)(m_iNumWeightHeight - 2) * (0.5f + Data->y * (1.0f / Globals::GetScreenHeight())));
+//    int x = (int)((float)(m_iNumWeightWidth - 2) * (0.5f + Data->x *  (1.0f / Globals::GetScreenWidth())));
+//    int y = (int)((float)(m_iNumWeightHeight - 2) * (0.5f + Data->y * (1.0f / Globals::GetScreenHeight())));
 //    
 //    m_afWeight[x * m_iNumWeightHeight + y] -= 10.0f;
 //}

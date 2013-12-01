@@ -17,7 +17,7 @@
 
 CPS_Spark01::CPS_Spark01()
 {
-    
+    m_fZoom = 0.0f;
 }
 
 CPS_Spark01::~CPS_Spark01()
@@ -27,9 +27,7 @@ CPS_Spark01::~CPS_Spark01()
 
 bool CPS_Spark01::Init(void* Property)
 {
-    unsigned char* data = nullptr;
-    unsigned char* image = nullptr;
-    int size = 0;
+    unsigned char *sprite = nullptr;
     unsigned int w, h;
     
     if (Property == nullptr)
@@ -38,22 +36,14 @@ bool CPS_Spark01::Init(void* Property)
         
         return false;
     }
-    
-    if (!LoadFileBytes("flash.png", &data, &size))
-    {
-        __LOG("Faild to init CPS_Spark01");
-        
-        return false;
-    }
-    
-    if (0 != lodepng_decode32(&image, &w, &h, data, size))
+
+    if (!LoadPngBytes("s_star.png", &sprite, &w, &h))
     {
         __LOG("Faild to init CPS_Spark01 (texture problem)");
         
-        delete data;
-        
         return false;
     }
+    
     
     SPS_Spark01_Property *prop = static_cast<SPS_Spark01_Property*>(Property);
     vector3 *p = prop->position;
@@ -61,21 +51,23 @@ bool CPS_Spark01::Init(void* Property)
 //    m_iFPS = prop->fps;
     m_iFrame = 0;
     
-    v3Set(&m_avec3Position[0], p->x - 5.5f, p->y - 5.5f, p->z);
-    v3Set(&m_avec3Position[1], p->x + 5.5f, p->y - 5.5f, p->z);
-    v3Set(&m_avec3Position[2], p->x - 5.5f, p->y + 5.5f, p->z);
-    v3Set(&m_avec3Position[3], p->x + 5.5f, p->y + 5.5f, p->z);
+    m_fZoom = 2.0f;
+    
+    v3Set(&m_avec3Position[0], p->x - m_fZoom, p->y - m_fZoom, p->z);
+    v3Set(&m_avec3Position[1], p->x + m_fZoom, p->y - m_fZoom, p->z);
+    v3Set(&m_avec3Position[2], p->x - m_fZoom, p->y + m_fZoom, p->z);
+    v3Set(&m_avec3Position[3], p->x + m_fZoom, p->y + m_fZoom, p->z);
     
     m_avec2UV[0].x = 0.0f;
     m_avec2UV[0].y = 0.0f;
     
-    m_avec2UV[1].x = m_avec2UV[0].x + 0.5f;
+    m_avec2UV[1].x = m_avec2UV[0].x + 0.3333f;
     m_avec2UV[1].y = m_avec2UV[0].y;
     
     m_avec2UV[2].x = m_avec2UV[0].x;
     m_avec2UV[2].y = m_avec2UV[0].y + 0.5f;
     
-    m_avec2UV[3].x = m_avec2UV[0].x + 0.5f;
+    m_avec2UV[3].x = m_avec2UV[0].x + 0.3333f;
     m_avec2UV[3].y = m_avec2UV[0].y + 0.5f;
     
     glGenTextures(1, &m_gTexture);
@@ -84,8 +76,7 @@ bool CPS_Spark01::Init(void* Property)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, sprite);
     
     glGenVertexArraysOES(1, &m_gVAO);
     glBindVertexArrayOES(m_gVAO);
@@ -103,15 +94,15 @@ bool CPS_Spark01::Init(void* Property)
     glVertexAttribPointer(SAL_TEXTURE_COORD, 2, GL_FLOAT, GL_FALSE, sizeof(vector2), 0);
     
     glBindVertexArrayOES(0);
-    
-    delete data;
-    delete image;
+
+    DeletePngBytes(sprite);
     
     return true;
 }
 
 void CPS_Spark01::Deinit()
 {
+//    if (m_gTexture) glDeleteTextures(2, m_gTexture);
     if (m_gTexture) glDeleteTextures(1, &m_gTexture);
     if (m_gVAO) glDeleteVertexArraysOES(1, &m_gVAO);
     if (m_gVBO) glDeleteBuffers(2, m_gVBO);
@@ -119,40 +110,50 @@ void CPS_Spark01::Deinit()
 
 void CPS_Spark01::Update(float DeltaTime)
 {
-    m_avec2UV[0].x = 0.0f;
-    m_avec2UV[0].y = 0.0f;
+    const float u = 1.0f / 3.0f;
+    const float v = 0.5f;
+    const float fps = 0.3f / 6.0f;
+
+    static float time = 0.0f;
+    static int frame = 0;
+    static float x = 0.0f, y = 0.0f;
     
-    if (m_iFrame == 1)
+    if (time >= fps)
     {
-        m_avec2UV[0].x = 0.5f;
-        m_avec2UV[0].y = 0.0f;
-    }
-    if (m_iFrame == 2)
-    {
-        m_avec2UV[0].x = 0.0f;
-        m_avec2UV[0].y = 0.5f;
-    }
-    if (m_iFrame == 3)
-    {
-        m_avec2UV[0].x = 0.5f;
-        m_avec2UV[0].y = 0.5f;
+        frame++;
         
-        m_iFrame = -1;
+        time = 0.0f;
+        if (frame == 6)
+        {
+            frame = 0;
+            x = 0.0f;
+            y = 0.0f;
+        }
+        else if (frame == 3)
+                {
+                    y = 1.0f;
+                    x = 0.0f;
+                }
+            else
+                x += 1.0f;
+        
+        m_avec2UV[0].x = x * u;
+        m_avec2UV[0].y = y * v;
+        
+        m_avec2UV[1].x = m_avec2UV[0].x + u;
+        m_avec2UV[1].y = m_avec2UV[0].y;
+        
+        m_avec2UV[2].x = m_avec2UV[0].x;
+        m_avec2UV[2].y = m_avec2UV[0].y + v;
+        
+        m_avec2UV[3].x = m_avec2UV[0].x + u;
+        m_avec2UV[3].y = m_avec2UV[0].y + v;
+        
+        glBindBuffer(GL_ARRAY_BUFFER, m_gVBO[1]);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vector2) * 6, m_avec2UV, GL_STATIC_DRAW);
     }
-    
-    m_avec2UV[1].x = m_avec2UV[0].x + 0.5f;
-    m_avec2UV[1].y = m_avec2UV[0].y;
-
-    m_avec2UV[2].x = m_avec2UV[0].x;
-    m_avec2UV[2].y = m_avec2UV[0].y + 0.5f;
-
-    m_avec2UV[3].x = m_avec2UV[0].x + 0.5f;
-    m_avec2UV[3].y = m_avec2UV[0].y + 0.5f;
-    
-    m_iFrame++;
-    
-    glBindBuffer(GL_ARRAY_BUFFER, m_gVBO[1]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vector2) * 6, m_avec2UV, GL_STATIC_DRAW);
+        
+    time += DeltaTime;
 }
 
 void CPS_Spark01::Render()

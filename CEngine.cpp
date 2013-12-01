@@ -8,7 +8,6 @@
 
 #include "CEngine.h"
 
-#include "Types.h"
 #include "Globals.h"
 #include "CObjectManager.h"
 #include "CSoundManager.h"
@@ -25,8 +24,8 @@ CEngine::~CEngine()
 
 bool CEngine::Start(int defaultFB, float Width, float Height, const char* Path)
 {
-    float_t w = Width * 0.1f;
-    float_t h = Height * 0.1f;
+    float w = Width * 0.1f;
+    float h = Height * 0.1f;
     
     Globals::SetDefaultFramebuffer(defaultFB);
     Globals::SetResourcePath(Path);
@@ -71,7 +70,7 @@ bool CEngine::Start(int defaultFB, float Width, float Height, const char* Path)
 //    mSetIdentity(&rotation);
 //    mSetRotation(&rotation, 75.0f, 1.0f, 0.0f, 0.0f);
 
-//    mSetTranslation(&modelview, 0.0f, 0.0f, -25.0f);
+    mSetTranslation(&modelview, 0.0f, 0.0f, -25.0f);
 //    mSetTranslation(&modelview, 25.0f, 0.0f, -65.0f);
     
 //    mMultiply(&modelview, &rotation);
@@ -80,17 +79,18 @@ bool CEngine::Start(int defaultFB, float Width, float Height, const char* Path)
     
 //    mSetTranslation(&modelview, 0.0f, 0.0f, 2.0f);
     
-    Globals::SetModelviewMatrix(&modelview);
+    Globals::SetDefaultModelviewMatrix(&modelview);
+    Globals::ResetModelview();
 
 //    projection = mSetPerspectiveBasic(16.0f, 24.0f, 10.0f, 20.0f);
-//    projection = mSetPerspective(90.0f * (3.14f / 180.0f), w / h, 0.1f, 200.0f);
+    projection = mSetPerspective(90.0f * (3.14f / 180.0f), w / h, 0.1f, 200.0f);
 //    projection = mSetOrthographic(-160.0f, 160.0f, 240.0f, -240.0f, -50.0f, 50.0f);
 //    projection = mSetOrthographic(-16.0f, 16.0f, 24.0f, -24.0f, -5.0f, 5.0f);
     
     
-    projection = mSetOrthographic(-w * 0.5f, w * 0.5f,
-                                  -h * 0.5f, h * 0.5f,
-                                  -10.0f, 10.0f);
+//    projection = mSetOrthographic(-w * 0.5f, w * 0.5f,
+//                                  -h * 0.5f, h * 0.5f,
+//                                  -10.0f, 10.0f);
 
 //    projection = mSetOrthographic(-w, w,
 //                                  -h, h,

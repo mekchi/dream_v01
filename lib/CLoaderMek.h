@@ -9,8 +9,6 @@
 #ifndef __dream__CLoaderMek__
 #define __dream__CLoaderMek__
 
-#include "Types.h"
-
 class CLoaderMek
 {
     
@@ -21,13 +19,13 @@ public:
     bool Load(const char* FileName);
     int GetNumberOfFace();
     int GetSize();
-    float_t* GetData();
+    float* GetData();
     
 private:
     
     int m_iNumFace;
     
-    float_t* m_avecVertexNormalUV;
+    float* m_avecVertexNormalUV;
 };
 
 #endif /* defined(__dream__CLoaderMek__) */

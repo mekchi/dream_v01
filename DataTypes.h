@@ -11,7 +11,6 @@
 
 #include <string>
 
-#include "Types.h"
 #include "VQMMath.h"
 #include "CGameObject.h"
 
@@ -45,18 +44,18 @@ typedef struct
     int NumberWidthHeight;
     int NumberHeightHeight;
     
-    float_t OriginX;
-    float_t OriginY;
-    float_t Level; // z coordinate
-    float_t GridStep;
+    float OriginX;
+    float OriginY;
+    float Level; // z coordinate
+    float GridStep;
     
     // borders
-    float_t Left;
-    float_t Right;
-    float_t Top;
-    float_t Bottom;
+    float Left;
+    float Right;
+    float Top;
+    float Bottom;
     
-    float_t ProtagonistRadius;
+    float ProtagonistRadius;
 } SHeightFieldProperty;
 
 // Material data

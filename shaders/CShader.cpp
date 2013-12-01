@@ -558,58 +558,6 @@ GLint CShaderBlend::GetUnivormLocation(E_SHADER_UNIFORM_LOCATION Type)
     return -1;
 }
 
-CShaderHeightFieldQuad::CShaderHeightFieldQuad()
-{
-    
-}
-
-CShaderHeightFieldQuad::~CShaderHeightFieldQuad()
-{
-    
-}
-
-bool CShaderHeightFieldQuad::Init()
-{
-    m_gProgram = CShader::CreateProgram("hf.vsh", "hf.fsh", &m_gVertexShader, &m_gFragmentShader);
-    
-    if (m_gProgram != 0)
-    {
-        glBindAttribLocation(m_gProgram, SAL_POSITION, "position");
-        
-        CShader::LinkProgram(m_gProgram, m_gVertexShader, m_gFragmentShader);
-        
-        m_gUniformModelView = glGetUniformLocation(m_gProgram, "modelview");
-        m_gUniformProjection = glGetUniformLocation(m_gProgram, "projection");
-        m_gUniformNormalMatrix = glGetUniformLocation(m_gProgram, "normalMatrix");
-        
-        return true;
-    }
-    
-    return false;
-}
-
-void CShaderHeightFieldQuad::Deinit()
-{
-    CShader::DestroyProgram(m_gProgram, m_gVertexShader, m_gFragmentShader);
-}
-
-GLint CShaderHeightFieldQuad::GetUnivormLocation(E_SHADER_UNIFORM_LOCATION Type)
-{
-    switch (Type)
-    {
-        case SUL_MODELVIEW:
-            return m_gUniformModelView;
-        
-        case SUL_PROJECTION:
-            return m_gUniformProjection;
-        
-        case SUL_NORMALMATRIX:
-            return m_gUniformNormalMatrix;
-    }
-    
-    return -1;
-}
-
 // CShaderWave animates wave
 
 CShaderWave::CShaderWave()
@@ -689,7 +637,7 @@ bool CShaderHeightField::Init()
         m_gUniformModelView = glGetUniformLocation(m_gProgram, "modelview");
         m_gUniformProjection = glGetUniformLocation(m_gProgram, "projection");
         m_gUniformNormalMatrix = glGetUniformLocation(m_gProgram, "normalMatrix");
-//        m_gUniformLightPosition = glGetUniformLocation(m_gProgram, "lightPosition");
+        m_gUniformLightPosition = glGetUniformLocation(m_gProgram, "lightPosition");
         m_gUniformParticle = glGetUniformLocation(m_gProgram, "particleTexture");
         m_gUniformRadius = glGetUniformLocation(m_gProgram, "radius");
         
@@ -752,7 +700,8 @@ bool CShaderParticle::Init()
         CShader::LinkProgram(m_gProgram, m_gVertexShader, m_gFragmentShader);
         
         m_gUniformProjection = glGetUniformLocation(m_gProgram, "projection");
-        m_gUniformTexture = glGetUniformLocation(m_gProgram, "particle");
+        m_gUniformTexture[0] = glGetUniformLocation(m_gProgram, "tex0");
+        m_gUniformTexture[1] = glGetUniformLocation(m_gProgram, "tex1");
         
         return true;
     }
@@ -773,7 +722,11 @@ GLint CShaderParticle::GetUnivormLocation(E_SHADER_UNIFORM_LOCATION Type)
             return m_gUniformProjection;
             
         case SUL_TEXTURE0:
-            return m_gUniformTexture;
+            return m_gUniformTexture[0];
+            
+        case SUL_TEXTURE1:
+            return m_gUniformTexture[1];
+
     }
     
     return -1;

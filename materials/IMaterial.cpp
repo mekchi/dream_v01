@@ -30,7 +30,7 @@ GLfloat IMaterial::m_fViewportHeight = 0.0f;
 
 // simple quad
 // vertex and texture coordinates
-static float_t quad[30] =
+static float quad[30] =
 {
     -1.0f, -1.0f, 0.0f,   0.0f, 0.0f,
     1.0f, -1.0f, 0.0f,   1.0f, 0.0f,
@@ -98,9 +98,9 @@ bool IMaterial::FrameBufferInit()
     glBindBuffer(GL_ARRAY_BUFFER, m_gVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(quad), quad, GL_STATIC_DRAW);
     glEnableVertexAttribArray(SAL_POSITION);
-    glVertexAttribPointer(SAL_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(float_t) * 5, 0);
+    glVertexAttribPointer(SAL_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, 0);
     glEnableVertexAttribArray(SAL_TEXTURE_COORD);
-    glVertexAttribPointer(SAL_TEXTURE_COORD, 2, GL_FLOAT, GL_FALSE, sizeof(float_t) * 5, (char*)NULL + (sizeof(float_t) * 3));
+    glVertexAttribPointer(SAL_TEXTURE_COORD, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (char*)NULL + (sizeof(float) * 3));
     
     glBindVertexArrayOES(0);
     
@@ -275,7 +275,7 @@ bool CMaterialGlow::Init(SMaterialData* Data)
     if (Data == nullptr)
         return false;
     
-//    static float_t quad[30] =
+//    static float quad[30] =
 //    {
 //        -1.0f, -1.0f, 0.0f,   0.0f, 0.0f,
 //        1.0f, -1.0f, 0.0f,   1.0f, 0.0f,
@@ -347,9 +347,9 @@ bool CMaterialGlow::Init(SMaterialData* Data)
     glBindBuffer(GL_ARRAY_BUFFER, m_gVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(quad), quad, GL_STATIC_DRAW);
     glEnableVertexAttribArray(SAL_POSITION);
-    glVertexAttribPointer(SAL_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(float_t) * 5, 0);
+    glVertexAttribPointer(SAL_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, 0);
     glEnableVertexAttribArray(SAL_TEXTURE_COORD);
-    glVertexAttribPointer(SAL_TEXTURE_COORD, 2, GL_FLOAT, GL_FALSE, sizeof(float_t) * 5, (char*)NULL + (sizeof(float_t) * 3));
+    glVertexAttribPointer(SAL_TEXTURE_COORD, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (char*)NULL + (sizeof(float) * 3));
     
     glBindVertexArrayOES(0);
 

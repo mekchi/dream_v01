@@ -13,11 +13,11 @@ varying vec3 P;
 
 void main()
 {
-    const vec3 la = vec3(0.9, 0.9, 0.9);
-    const vec3 ld = vec3(0.9, 0.9, 0.9);
+    const vec3 la = vec3(0.0, 0.0, 0.0);
+    const vec3 ld = vec3(0.2, 0.2, 0.2);
     const vec3 ls = vec3(1.0, 1.0, 1.0);
-    const vec3 ma = vec3(0.1, 0.1, 0.1);
-    const vec3 md = vec3(0.1, 0.1, 0.1);
+    const vec3 ma = vec3(0.0, 0.0, 0.0);
+    const vec3 md = vec3(0.01, 0.01, 0.01);
     const vec3 ms = vec3(1.0, 1.0, 1.0);
     const float shiness = 50.0;
     
@@ -64,8 +64,13 @@ void main()
         }
         else
         {
+            
+            //gl_FragColor = vec4(P.z, 0.0, 0.0, 1.0);
             gl_FragColor = vec4(color, 1.0);
+//            gl_FragColor = vec4(vec3(P.z), 1.0);
             //gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+            //nv.z = 0.0;
+            //gl_FragColor = vec4(nv, 1.0);
         }
     }
 }

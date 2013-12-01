@@ -12,7 +12,6 @@
 #include <memory.h>
 #include <math.h>
 
-#include "Types.h"
 #include "FastMath.h"
 
 // vector types
@@ -22,10 +21,10 @@ typedef union
 {
     struct
     {
-        float_t x;
-        float_t y;
+        float x;
+        float y;
     };
-    float_t v[2];
+    float v[2];
 } vector2;
 
 // vector 3D
@@ -33,11 +32,11 @@ typedef union
 {
     struct
     {
-        float_t x;
-        float_t y;
-        float_t z;
+        float x;
+        float y;
+        float z;
     };
-    float_t v[3];
+    float v[3];
 } vector3;
 
 // quaternion
@@ -45,12 +44,12 @@ typedef union
 {
     struct
     {
-        float_t x;
-        float_t y;
-        float_t z;
-        float_t w;
+        float x;
+        float y;
+        float z;
+        float w;
     };
-    float_t q[4];
+    float q[4];
 } quaternion;
 
 // matrix 4x4
@@ -59,12 +58,12 @@ typedef union
 {
     struct
     {
-        float_t m00, m01, m02, m03; // 0 4 8 12
-        float_t m10, m11, m12, m13; // 1 5 9 13
-        float_t m20, m21, m22, m23; // 2 6 10 14
-        float_t m30, m31, m32, m33; // 3 7 11 15
+        float m00, m01, m02, m03; // 0 4 8 12
+        float m10, m11, m12, m13; // 1 5 9 13
+        float m20, m21, m22, m23; // 2 6 10 14
+        float m30, m31, m32, m33; // 3 7 11 15
     };
-    float_t m[16];
+    float m[16];
 } matrix44;
 
 
@@ -73,57 +72,57 @@ typedef union
 // vector 2D
 void v2SetZero(vector2 *v);
 void v2Copy(vector2 *to, vector2 *from);
-void v2Set(vector2 *inOut, float_t x, float_t y);
+void v2Set(vector2 *inOut, float x, float y);
 void v2PerpendicularCCW(vector2 *v);
 void v2PerpendicularCW(vector2 *v);
 
 // vector 3D
 void v3SetZero(vector3 *v);
 void v3Copy(vector3 *inOut, vector3 *v);
-void v3Set(vector3 *inOut, float_t x, float_t y, float_t z);
+void v3Set(vector3 *inOut, float x, float y, float z);
 void v3Add(vector3 *inOut, vector3 *v);
 void v3AddToR(vector3 *result, vector3 *a, vector3 *b);
 void v3Subtract(vector3 *inOut, vector3 *v);
 void v3SubtractToR(vector3 *result, vector3 *a, vector3 *b);
-void v3Multiply(vector3 *inOut, float_t s);
-void v3MultiplyToR(vector3 *result, vector3 *v, float_t c);
-void v3Divide(vector3 *inOut, float_t s);
-void v3DivideToR(vector3 *result, vector3 *v, float_t s);
-float_t v3SquaredMagnitude(vector3 *v);
-float_t v3Magnitude(vector3 *v);
-float_t v3DotProduct(vector3 *a, vector3 *b);
+void v3Multiply(vector3 *inOut, float s);
+void v3MultiplyToR(vector3 *result, vector3 *v, float c);
+void v3Divide(vector3 *inOut, float s);
+void v3DivideToR(vector3 *result, vector3 *v, float s);
+float v3SquaredMagnitude(vector3 *v);
+float v3Magnitude(vector3 *v);
+float v3DotProduct(vector3 *a, vector3 *b);
 void v3Normalize(vector3 *inOut);
 void v3CrossProduct(vector3 *result, vector3 *a, vector3 *b);
-void v3AxisToQuaternion(quaternion *result, vector3 *v, float_t phi);
+void v3AxisToQuaternion(quaternion *result, vector3 *v, float phi);
 bool v3IsEqual(vector3 *a, vector3 *b);
 //void v3AngularVelocityToQuaternion(quaternion *inOut, vector3 *vIn);
 
 // quaternion
 void qSetZero(quaternion *q);
-void qSet(quaternion *result, float_t x, float_t y, float_t z, float_t w);
+void qSet(quaternion *result, float x, float y, float z, float w);
 void qCopy(quaternion *inOut, quaternion *q);
 void qSetIdentity(quaternion *q);
 void qAdd(quaternion *inOut, quaternion *q);
-void qScale(quaternion *inOut, float_t s);
+void qScale(quaternion *inOut, float s);
 void qMultiply(quaternion *inOut, quaternion *q);
 void qMultiplyToR(quaternion *result, quaternion *a, quaternion *b);
 void qNormalize(quaternion *q);
 void qConvertToMatrix(matrix44 *inOut, quaternion *q);
 
 // matrix 4x4
-matrix44 mSetPerspectiveBasic(float_t right, float_t top, float_t near, float_t far);
-matrix44 mSetPerspective(float_t fovyRadians, float_t aspect, float_t nearZ, float_t farZ);
+matrix44 mSetPerspectiveBasic(float right, float top, float near, float far);
+matrix44 mSetPerspective(float fovyRadians, float aspect, float nearZ, float farZ);
 void mCopy(matrix44 *a, matrix44 *b);
 void mSetIdentity(matrix44 *m);
 //void mSetTranslation(matrix44 *m, vector3* v);
-void mSetTranslation(matrix44 *m, float_t x, float_t y, float_t z);
-void mSetRotation(matrix44* m, float_t angle, float_t x, float_t y, float_t z);
+void mSetTranslation(matrix44 *m, float x, float y, float z);
+void mSetRotation(matrix44* m, float angle, float x, float y, float z);
 void mMultiplyToR(matrix44 *left, matrix44 *right, matrix44 *result);
 void mMultiply(matrix44 *left, matrix44 *right);
-matrix44 mSetOrthographic(float_t left, float_t right, float_t bottom, float_t top, float_t near, float_t far);
+matrix44 mSetOrthographic(float left, float right, float bottom, float top, float near, float far);
 void mTranspose(matrix44 *m);
-float_t mDeterminant(matrix44 *m);
-void mScale(matrix44 *m, float_t s);
+float mDeterminant(matrix44 *m);
+void mScale(matrix44 *m, float s);
 void mInvert(matrix44 *m);
 void mInvertToR(matrix44 *m, matrix44 *result);
 
@@ -142,7 +141,7 @@ inline void v2Copy(vector2 *inOut, vector2 *v)
     inOut->y = v->y;
 }
 
-inline void v2Set(vector2 *inOut, float_t x, float_t y)
+inline void v2Set(vector2 *inOut, float x, float y)
 {
     inOut->x = x;
     inOut->y = y;
@@ -180,7 +179,7 @@ inline void v3Copy(vector3 *inOut, vector3 *v)
     inOut->z = v->z;
 }
 
-inline void v3Set(vector3 *result, float_t x, float_t y, float_t z)
+inline void v3Set(vector3 *result, float x, float y, float z)
 {
     result->x = x;
     result->y = y;
@@ -215,52 +214,52 @@ inline void v3SubtractToR(vector3 *result, vector3 *a, vector3 *b)
     result->z = a->z - b->z;
 }
 
-inline void v3Multiply(vector3 *inOut, float_t s)
+inline void v3Multiply(vector3 *inOut, float s)
 {
     inOut->x *= s;
     inOut->y *= s;
     inOut->z *= s;
 }
 
-inline void v3MultiplyToR(vector3 *result, vector3 *v, float_t s)
+inline void v3MultiplyToR(vector3 *result, vector3 *v, float s)
 {
     result->x = v->x * s;
     result->y = v->y * s;
     result->z = v->z * s;
 }
 
-inline void v3Divide(vector3 *inOut, float_t s)
+inline void v3Divide(vector3 *inOut, float s)
 {
     inOut->x /= s;
     inOut->y /= s;
     inOut->z /= s;
 }
 
-inline void v3DivideToR(vector3 *result, vector3 *v, float_t s)
+inline void v3DivideToR(vector3 *result, vector3 *v, float s)
 {
     result->x = v->x / s;
     result->y = v->y / s;
     result->z = v->z / s;
 }
 
-inline float_t v3SquaredMagnitude(vector3 *v)
+inline float v3SquaredMagnitude(vector3 *v)
 {
     return ((v->x * v->x) + (v->y * v->y) + (v->z * v->z));
 }
 
-inline float_t v3Magnitude(vector3 *v)
+inline float v3Magnitude(vector3 *v)
 {
     return fastSqrt(v3SquaredMagnitude(v));
 }
 
-inline float_t v3DotProduct(vector3 *a, vector3 *b)
+inline float v3DotProduct(vector3 *a, vector3 *b)
 {
     return ((a->x * b->x) + (a->y * b->y) + (a->z * b->z));
 }
 
 inline void v3Normalize(vector3 *v)
 {
-    float_t c = v3Magnitude(v);
+    float c = v3Magnitude(v);
     
     if (c != 0.0f)
     {
@@ -278,10 +277,10 @@ inline void v3CrossProduct(vector3 *result, vector3 *a, vector3 *b)
 }
 
 // converting a 3d vector to a quaternion
-inline void v3AxisToQuaternion(quaternion *inOut, vector3 *v, float_t phi)
+inline void v3AxisToQuaternion(quaternion *inOut, vector3 *v, float phi)
 {
-    float_t halfAngle = phi * 0.5f;
-    float_t alpha = sinf(halfAngle);
+    float halfAngle = phi * 0.5f;
+    float alpha = sinf(halfAngle);
     
     inOut->x = v->x * alpha;
     inOut->y = v->y * alpha;
@@ -374,7 +373,7 @@ inline void qMultiplyToR(quaternion *result, quaternion *a, quaternion *b)
 
 inline void qNormalize(quaternion *q)
 {
-    float_t m = fastSqrt((q->x * q->x) + (q->y * q->y)
+    float m = fastSqrt((q->x * q->x) + (q->y * q->y)
                          + (q->z * q->z) + (q->w * q->w));
     
     if (m > 0.0f)
@@ -437,9 +436,9 @@ inline void mSetIdentity(matrix44 *m)
     m->m[14] = 0.0f;
 }
 
-inline matrix44 mSetPerspective(float_t fovyRadians, float_t aspect, float_t nearZ, float_t farZ)
+inline matrix44 mSetPerspective(float fovyRadians, float aspect, float nearZ, float farZ)
 {
-    float_t cotan = 1.0f / tanf(fovyRadians * 0.5f);
+    float cotan = 1.0f / tanf(fovyRadians * 0.5f);
     
     matrix44 m = { cotan / aspect, 0.0f, 0.0f, 0.0f,
         0.0f, cotan, 0.0f, 0.0f,
@@ -449,7 +448,7 @@ inline matrix44 mSetPerspective(float_t fovyRadians, float_t aspect, float_t nea
     return m;
 }
 
-inline matrix44 mSetPerspectiveBasic(float_t right, float_t top, float_t near, float_t far)
+inline matrix44 mSetPerspectiveBasic(float right, float top, float near, float far)
 {
     // 0 4 8 12
     // 1 5 9 13
@@ -464,14 +463,14 @@ inline matrix44 mSetPerspectiveBasic(float_t right, float_t top, float_t near, f
     return m;
 }
 
-inline matrix44 mSetOrthographic(float_t left, float_t right, float_t bottom, float_t top, float_t near, float_t far)
+inline matrix44 mSetOrthographic(float left, float right, float bottom, float top, float near, float far)
 {
-    float_t ral = right + left;
-    float_t rsl = right - left;
-    float_t tab = top + bottom;
-    float_t tsb = top - bottom;
-    float_t fan = far + near;
-    float_t fsn = far - near;
+    float ral = right + left;
+    float rsl = right - left;
+    float tab = top + bottom;
+    float tsb = top - bottom;
+    float fan = far + near;
+    float fsn = far - near;
     
     matrix44 m = { 2.0f / rsl, 0.0f, 0.0f, 0.0f,
         0.0f, 2.0f / tsb, 0.0f, 0.0f,
@@ -481,7 +480,7 @@ inline matrix44 mSetOrthographic(float_t left, float_t right, float_t bottom, fl
     return m;
 }
 
-inline void mSetTranslation(matrix44 *m, float_t x, float_t y, float_t z)
+inline void mSetTranslation(matrix44 *m, float x, float y, float z)
 {
     m->m[12] = x;
     m->m[13] = y;
@@ -508,19 +507,19 @@ inline void mSetTranslation(matrix44 *m, float_t x, float_t y, float_t z)
 //    m->m[14] = v->z;
 //}
 
-inline void mSetScale(matrix44* m, float_t x, float_t y, float_t z)
+inline void mSetScale(matrix44* m, float x, float y, float z)
 {
     m->m[0] = x;
     m->m[5] = y;
     m->m[10] = z;
 }
 
-inline void mSetRotation(matrix44* m, float_t angle, float_t x, float_t y, float_t z)
+inline void mSetRotation(matrix44* m, float angle, float x, float y, float z)
 {
-    float_t length = fastSqrt(x * x + y * y + z * z);
-    float_t xp = x / length;
-    float_t yp = y / length;
-    float_t zp = z / length;
+    float length = fastSqrt(x * x + y * y + z * z);
+    float xp = x / length;
+    float yp = y / length;
+    float zp = z / length;
     float cos = cosf(DEGREE_TO_RADIAN(angle));
     float cosp = 1.0f - cos;
     float sin = sinf(DEGREE_TO_RADIAN(angle));
@@ -586,7 +585,7 @@ inline void mMultiply(matrix44 *left, matrix44 *right)
     (*left) = result;
 }
 
-inline void mScale(matrix44 *m, float_t s)
+inline void mScale(matrix44 *m, float s)
 {
     int i;
     
@@ -641,7 +640,7 @@ inline void mInvertToR(matrix44 *m, matrix44 *result)
     mScale(result, (1.0f / mDeterminant(m)));
 }
 
-inline float_t mDeterminant(matrix44 *m)
+inline float mDeterminant(matrix44 *m)
 {
     return ((m->m03 * m->m12 * m->m21 * m->m30) - (m->m02 * m->m13 * m->m21 * m->m30) - (m->m03 * m->m11 * m->m22 * m->m30) + (m->m01 * m->m13 * m->m22 * m->m30) + (m->m02 * m->m11 * m->m23 * m->m30) - (m->m01 * m->m12 * m->m23 * m->m30) - (m->m03 * m->m12 * m->m20 * m->m31) + (m->m02 * m->m13 * m->m20 * m->m31) + (m->m03 * m->m10 * m->m22 * m->m31) - (m->m00 * m->m13 * m->m22 * m->m31) - (m->m02 * m->m10 * m->m23 * m->m31) + (m->m00 * m->m12 * m->m23 * m->m31) + (m->m03 * m->m11 * m->m20 * m->m32) - (m->m01 * m->m13 * m->m20 * m->m32) - (m->m03 * m->m10 * m->m21 * m->m32) + (m->m00 * m->m13 * m->m21 * m->m32) + (m->m01 * m->m10 * m->m23 * m->m32) - (m->m00 * m->m11 * m->m23 * m->m32) - (m->m02 * m->m11 * m->m20 * m->m33) + (m->m01 * m->m12 * m->m20 * m->m33) + (m->m02 * m->m10 * m->m21 * m->m33) - (m->m00 * m->m12 * m->m21 * m->m33) - (m->m01 * m->m10 * m->m22 * m->m33) + (m->m00 * m->m11 * m->m22 * m->m33));
 }

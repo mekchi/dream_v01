@@ -9,7 +9,6 @@
 #ifndef __dream__CEngine__
 #define __dream__CEngine__
 
-#include "Types.h"
 #include "DataTypes.h"
 
 class CEngine
@@ -31,8 +30,8 @@ public:
     
 private:
     
-    float_t m_fHalfWidth;
-    float_t m_fHalfHeight;
+    float m_fHalfWidth;
+    float m_fHalfHeight;
     
     //SShaderUniformModelview m_sWorldTransformation;
     

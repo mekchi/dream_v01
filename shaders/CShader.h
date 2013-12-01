@@ -167,26 +167,6 @@ private:
     
 };
 
-class CShaderHeightFieldQuad : public CShader
-{
-
-public:
-    
-    CShaderHeightFieldQuad();
-    virtual ~CShaderHeightFieldQuad();
-    
-    virtual bool Init();
-    virtual void Deinit();
-    virtual GLint GetUnivormLocation(E_SHADER_UNIFORM_LOCATION Type);
-    
-private:
-    
-    GLint m_gUniformModelView;
-    GLint m_gUniformProjection;
-    GLint m_gUniformNormalMatrix;
-    
-};
-
 class CShaderWave : public CShader
 {
 public:
@@ -243,7 +223,7 @@ public:
 private:
     
     GLint m_gUniformProjection;
-    GLint m_gUniformTexture;
+    GLint m_gUniformTexture[2];
     
 };
 

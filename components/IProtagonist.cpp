@@ -48,7 +48,8 @@ bool CProtagonistSphere::Init(void* Property)
     unsigned char *data = nullptr;
     unsigned int texW = 0, texH = 0;
     
-    if (!sphere.Load("pSphere1.mek") || !LoadPngBytes("protagonist.png", &data, &texW, &texH))
+//    if (!sphere.Load("pSphere1.mek") || !LoadPngBytes("protagonist.png", &data, &texW, &texH))
+    if (!sphere.Load("protagonist.mek") || !LoadPngBytes("protagonist00.png", &data, &texW, &texH))
     {
         __LOG("Faild to init (protagonist)");
         
@@ -57,9 +58,9 @@ bool CProtagonistSphere::Init(void* Property)
     
     m_iNumFaceVertex = sphere.GetNumberOfFace() * 3;
     
-    glGenTextures(1, &m_gTexture);
+    glGenTextures(1, &m_gProtagonistTexture);
 
-    glBindTexture(GL_TEXTURE_2D, m_gTexture);
+    glBindTexture(GL_TEXTURE_2D, m_gProtagonistTexture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -87,6 +88,73 @@ bool CProtagonistSphere::Init(void* Property)
     //    glDisableVertexAttribArray(SAL_TEXTURE_COORD);
     
     glBindVertexArrayOES(0);
+    
+    // frame buffer for glow effect
+    
+    const float quad[30] =
+    {
+        -1.0f, -1.0f, 0.0f,   0.0f, 0.0f,
+        1.0f, -1.0f, 0.0f,   1.0f, 0.0f,
+        1.0f, 1.0f, 0.0f,   1.0f, 1.0f,
+        -1.0f, -1.0f, 0.0f,   0.0f, 0.0f,
+        1.0f, 1.0f, 0.0f,   1.0f, 1.0f,
+        -1.0f, 1.0f, 0.0f,   0.0f, 1.0f
+    };
+    
+    glGenVertexArraysOES(1, &m_gVAOQuad);
+    glBindVertexArrayOES(m_gVAOQuad);
+    
+    glGenBuffers(1, &m_gVBOQuad);
+    glBindBuffer(GL_ARRAY_BUFFER, m_gVBOQuad);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quad), quad, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(SAL_POSITION);
+    glVertexAttribPointer(SAL_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, 0);
+    glEnableVertexAttribArray(SAL_TEXTURE_COORD);
+    glVertexAttribPointer(SAL_TEXTURE_COORD, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (char*)NULL + (sizeof(float) * 3));
+    
+    glBindVertexArrayOES(0);
+    
+    GLint viewport[4];
+    
+    glGetIntegerv(GL_VIEWPORT, viewport);
+    
+    m_gTextureWidth = viewport[2];
+    m_gTextureHeight = viewport[3];
+    
+    glGenFramebuffers(1, &m_gFB);
+    glGenRenderbuffers(1, &m_gRB);
+    glGenTextures(2, m_gTexture);
+    
+    glBindTexture(GL_TEXTURE_2D, m_gTexture[0]);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_gTextureWidth, m_gTextureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+    
+    glBindTexture(GL_TEXTURE_2D, m_gTexture[1]);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_gTextureWidth, m_gTextureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    
+    glBindRenderbuffer(GL_RENDERBUFFER, m_gRB);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8_OES, m_gTextureWidth, m_gTextureHeight);
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, m_gFB);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, m_gRB);
+    
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    {
+        __LOG("Faild to create frame buffer");
+        
+        return false;
+    }
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, Globals::GetDefaultFramebuffer());
     
     return true;
 }
@@ -262,17 +330,130 @@ void CProtagonistSphere::Render()
     mInvertToR(&temp, &invertTemp);
     mTranspose(&invertTemp);
     
+//    glEnable(GL_CULL_FACE);
+    
+//    glCullFace(GL_FRONT);
+    
+//    glEnable(GL_BLEND);
+//    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+    
     glUseProgram(CShader::GetShader(ST_TEXTURE)->GetProgram());
     
     glUniformMatrix4fv(CShader::GetShader(ST_TEXTURE)->GetUnivormLocation(SUL_MODELVIEW), 1, GL_FALSE, temp.m);
     
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_gTexture);
+    glBindTexture(GL_TEXTURE_2D, m_gProtagonistTexture);
     
     glUniform1i(CShader::GetShader(ST_TEXTURE)->GetUnivormLocation(SUL_TEXTURE0), 0);
     
     glBindVertexArrayOES(m_gVAO);
     glDrawArrays(GL_TRIANGLES, 0, m_iNumFaceVertex);
+    
+//    glDisable(GL_BLEND);
+//    
+//    glDisable(GL_CULL_FACE);
+    
+    
+    
+    // basic rendering
+//    
+//    glBindFramebuffer(GL_FRAMEBUFFER, m_gFB);
+//    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+//    glClear(GL_COLOR_BUFFER_BIT);
+//    
+//    glUseProgram(CShader::GetShader(ST_TEXTURE)->GetProgram());
+//
+//    glUniformMatrix4fv(CShader::GetShader(ST_TEXTURE)->GetUnivormLocation(SUL_MODELVIEW), 1, GL_FALSE, temp.m);
+//
+//    glActiveTexture(GL_TEXTURE0);
+//    glBindTexture(GL_TEXTURE_2D, m_gProtagonistTexture);
+//
+//    glUniform1i(CShader::GetShader(ST_TEXTURE)->GetUnivormLocation(SUL_TEXTURE0), 0);
+//
+//    glBindVertexArrayOES(m_gVAO);
+//    glDrawArrays(GL_TRIANGLES, 0, m_iNumFaceVertex);
+//    
+//    glBindTexture(GL_TEXTURE_2D, m_gTexture[0]);
+//    glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, m_gTextureWidth, m_gTextureHeight, 0);
+//    
+//    // vertical blur
+//    
+//    glClear(GL_COLOR_BUFFER_BIT);
+//    
+//    glActiveTexture(GL_TEXTURE0);
+//    glBindTexture(GL_TEXTURE_2D, m_gTexture[0]);
+//    
+//    glUseProgram(CShader::GetShader(ST_VERTICAL_GLOW)->GetProgram());
+//    glUniform1i(CShader::GetShader(ST_VERTICAL_GLOW)->GetUnivormLocation(SUL_TEXTURE0), 0);
+//    
+//    glBindVertexArrayOES(m_gVAOQuad);
+//    glDrawArrays(GL_TRIANGLES, 0, 6);
+//    
+//    glBindTexture(GL_TEXTURE_2D, m_gTexture[1]);
+//    glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, m_gTextureWidth, m_gTextureHeight, 0);
+//    
+//    // horizontal blur
+//    
+//    glClear(GL_COLOR_BUFFER_BIT);
+//    
+//    glActiveTexture(GL_TEXTURE0 + 1);
+//    glBindTexture(GL_TEXTURE_2D, m_gTexture[1]);
+//    
+//    glUseProgram(CShader::GetShader(ST_HORIZONTAL_GLOW)->GetProgram());
+//    glUniform1i(CShader::GetShader(ST_HORIZONTAL_GLOW)->GetUnivormLocation(SUL_TEXTURE0), 1);
+//    
+//    glBindVertexArrayOES(m_gVAOQuad);
+//    glDrawArrays(GL_TRIANGLES, 0, 6);
+//    
+//    glBindTexture(GL_TEXTURE_2D, m_gTexture[0]);
+//    glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, m_gTextureWidth, m_gTextureHeight, 0);
+//    
+//    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+//    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//    
+//    glUseProgram(CShader::GetShader(ST_BLEND)->GetProgram());
+//    
+//    glUniform1i(CShader::GetShader(ST_BLEND)->GetUnivormLocation(SUL_TEXTURE0), 1);
+//    glUniform1i(CShader::GetShader(ST_BLEND)->GetUnivormLocation(SUL_TEXTURE1), 2);
+//    
+//    glBindVertexArrayOES(m_gVAOQuad);
+//    glDrawArrays(GL_TRIANGLES, 0, 6);
+//    
+//    glBindTexture(GL_TEXTURE_2D, m_gTexture[0]);
+//    glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, m_gTextureWidth, m_gTextureHeight, 0);
+//
+//    glBindFramebuffer(GL_FRAMEBUFFER, Globals::GetDefaultFramebuffer());
+//    
+//    glUseProgram(CShader::GetShader(ST_TEXTURE)->GetProgram());
+//    
+//    glUniformMatrix4fv(CShader::GetShader(ST_TEXTURE)->GetUnivormLocation(SUL_MODELVIEW), 1, GL_FALSE, temp.m);
+//    
+//    glActiveTexture(GL_TEXTURE0);
+//    glBindTexture(GL_TEXTURE_2D, m_gProtagonistTexture);
+//    
+//    glUniform1i(CShader::GetShader(ST_TEXTURE)->GetUnivormLocation(SUL_TEXTURE0), 0);
+//    
+//    glBindVertexArrayOES(m_gVAO);
+//    glDrawArrays(GL_TRIANGLES, 0, m_iNumFaceVertex);
+//    
+//    glBindTexture(GL_TEXTURE_2D, m_gTexture[0]);
+//    glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, m_gTextureWidth, m_gTextureHeight, 0);
+//    
+//    glBindTexture(GL_TEXTURE_2D, m_gTexture[1]);
+//    glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, m_gTextureWidth, m_gTextureHeight, 0);
+//    
+//    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+//    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//    
+//    glUseProgram(CShader::GetShader(ST_BLEND)->GetProgram());
+//    
+//    glUniform1i(CShader::GetShader(ST_BLEND)->GetUnivormLocation(SUL_TEXTURE0), 1);
+//    glUniform1i(CShader::GetShader(ST_BLEND)->GetUnivormLocation(SUL_TEXTURE1), 2);
+//    
+//    glBindVertexArrayOES(m_gVAOQuad);
+//    glDrawArrays(GL_TRIANGLES, 0, 6);
+    
+//    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void CProtagonistSphere::Touch(vector3* Point)

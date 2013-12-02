@@ -253,6 +253,7 @@ void CProtagonistSphere::Update(float DeltaTime)
         }
         case PRTGS_SHOW:
         {
+           
             
             break;
         }
@@ -463,7 +464,8 @@ void CProtagonistSphere::Touch(vector3* Point)
     if (v3Magnitude(&m_vecPull) <= m_fRadius)
     {
         m_eStatus = PRTGS_SHOW;
-
+        
+        m_opObject->ResetRotaiton();
     }
     else
     {

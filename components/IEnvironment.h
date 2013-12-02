@@ -82,6 +82,11 @@ private:
     
     float m_fRadius; // radius of the protagonist
     
+    /* wave */
+
+    float m_fWaveLifeTime;
+    float m_fWaveRadius;
+
     
     /* graphics */
 

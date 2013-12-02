@@ -41,10 +41,11 @@ typedef SObjectData SObjectData;
 
 typedef struct
 {
+    // grid definition
     int NumberWidthHeight;
     int NumberHeightHeight;
-    
-    float OriginX;
+
+    float OriginX; // origin of grid
     float OriginY;
     float Level; // z coordinate
     float GridStep;
@@ -54,8 +55,14 @@ typedef struct
     float Right;
     float Top;
     float Bottom;
-    
+ 
+    // protagonist
     float ProtagonistRadius;
+    
+    // wave
+    float WaveRadius;
+    float WaveAnimationTime;
+    
 } SHeightFieldProperty;
 
 // Material data

@@ -21,6 +21,9 @@ CEnvironmentHF::CEnvironmentHF()
 {
     m_eStatusProtagonist = PRTGS_IDLE;
     m_eStatus = ENVS_IDLE;
+    
+    m_fWaveLifeTime = 0.0f;
+    m_fWaveRadius = 0.0f;
 }
 
 CEnvironmentHF::~CEnvironmentHF()
@@ -42,6 +45,8 @@ bool CEnvironmentHF::Init(void* Property)
     m_fOriginX = property->OriginX * 2 - m_fStep;
     m_fOriginY = property->OriginY * 2 - m_fStep;
     m_fLevel = property->Level;
+    m_fWaveRadius = property->WaveRadius;
+    m_fWaveLifeTime = property->WaveAnimationTime;
 
     // define border
     m_fBorderLeft = property->Left;
@@ -240,6 +245,27 @@ void CEnvironmentHF::Destroy(IComponent *Component)
 
 void CEnvironmentHF::Update(float DeltaTime)
 {
+    m_fWaveLifeTime -= DeltaTime;
+    
+    if (m_fWaveLifeTime <= 0.0f)
+    {
+        m_fWaveRadius -= DeltaTime * m_fWaveRadiusStep;
+    }
+    else
+    {
+        m_fWaveRadius += DeltaTime * m_fWaveRadiusStep;
+    }
+    
+    if (m_fWaveRadius < 0.0f)
+    {
+        m_bTouched = false;
+        m_fWaveRadius = 0.0f;
+    }
+    else
+    {
+        Globals::GetObjectManager().BroadcastMessage(CMessage(MT_PROTAGONIST_TOUCH, static_cast<void*>(&m_fWaveRadius)));
+    }
+    
     UpdatePhysics(DeltaTime);
     UpdateGraphics(DeltaTime);
 }

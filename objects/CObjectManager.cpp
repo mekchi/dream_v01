@@ -81,6 +81,8 @@ bool CObjectManager::Load()
     propertyHF.Right = 11.0f;
     propertyHF.Top = 19.0f;
     propertyHF.Bottom = -19.0f;
+    propertyHF.WaveRadius = 5.0f;
+    propertyHF.WaveAnimationTime = 1.0f;
     
     CGameObject* protagonist = CreateObject(GOI_PROTAGONIST);
     IComponent* sphere = CreateComponent(CI_PROTAGONIST_SPHERE);

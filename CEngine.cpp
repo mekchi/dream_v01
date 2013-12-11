@@ -34,10 +34,33 @@ bool CEngine::Start(int defaultFB, float Width, float Height, const char* Path)
     
     m_fHalfWidth = w * 0.5f;
     m_fHalfHeight = h * 0.5f;
-
-    if (!CShader::LoadShaders()) return false;
-//    if (!IMaterial::FrameBufferInit()) return false;
     
+    // init sound
+    CSoundManager &sound = Globals::GetSoundManager();
+    
+    if (!sound.Init())
+    {
+        __LOG("Sound init failure");
+        
+        // action
+    }
+    
+    if (!sound.LoadSound(0))
+    {
+        __LOG("Faild to load sounds");
+        
+    }
+
+    // init shaders
+    if (!CShader::LoadShaders())
+    {
+        __LOG("Faild to init shaders");
+     
+        return false;
+    }
+
+    
+    // init objects
     CObjectManager &manager = Globals::GetObjectManager();
 
     if (!manager.Init())
@@ -49,16 +72,6 @@ bool CEngine::Start(int defaultFB, float Width, float Height, const char* Path)
     
     manager.Load();
     
-    CSoundManager &sound = Globals::GetSoundManager();
-    
-    if (!sound.Init())
-    {
-        __LOG("Sound init failure");
-        
-        // action
-    }
-    
-    sound.LoadSound(0);
     
     // set up default world transformation
     

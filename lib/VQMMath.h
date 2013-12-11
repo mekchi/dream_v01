@@ -125,6 +125,7 @@ float mDeterminant(matrix44 *m);
 void mScale(matrix44 *m, float s);
 void mInvert(matrix44 *m);
 void mInvertToR(matrix44 *m, matrix44 *result);
+void mMultiplyVector(matrix44 *m, vector3 *v);
 
 
 // vector 2D implementation
@@ -647,16 +648,17 @@ inline float mDeterminant(matrix44 *m)
 
 
 
-//void mMultiply_mv(vector3f *vector, matrix44f matrix)
-//{
-//    vector3f	temp;
-//    float		r = m->m30 * vector->x + m->m31 * vector->y + m->m32 * vector->z + m->m33;
-//
-//    temp.x = (m->m00 * vector->x + m->m01 * vector->y + m->m02 * vector->z + m->m03) / r;
-//    temp.y = (m->m10 * vector->x + m->m11 * vector->y + m->m12 * vector->z + m->m13) / r;
-//    temp.z = (m->m20 * vector->x + m->m21 * vector->y + m->m22 * vector->z + m->m23) / r;
-//    memcpy(vector, &temp, SIZE_VPC3F);
-//}
+inline void mMultiplyVector(matrix44 *m, vector3 *v)
+{
+    vector3	temp;
+    float r = m->m30 * v->x + m->m31 * v->y + m->m32 * v->z + m->m33;
+
+    temp.x = (m->m00 * v->x + m->m01 * v->y + m->m02 * v->z + m->m03) / r;
+    temp.y = (m->m10 * v->x + m->m11 * v->y + m->m12 * v->z + m->m13) / r;
+    temp.z = (m->m20 * v->x + m->m21 * v->y + m->m22 * v->z + m->m23) / r;
+    
+    memcpy(v, &temp, sizeof(vector3));
+}
 
 inline void mTranspose(matrix44 *m)
 {

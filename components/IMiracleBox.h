@@ -13,7 +13,8 @@
 
 #include "Graphics.h"
 #include "VQMMath.h"
-#include "CPS_Spark01.h"
+#include "CPS_Star01.h"
+#include "CPS_Butterfly.h"
 
 
 class IMiracleBox : public IComponent
@@ -81,7 +82,8 @@ private:
     void Update(float DeltaTime);
     void Render();
     
-    CPS_Spark01 m_oSpark;
+    CPS_Star01 m_oSpark;
+    CPS_Butterfly m_oButterfly;
 };
 
 #endif /* defined(__dream__CMiracleBox__) */

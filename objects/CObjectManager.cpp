@@ -8,6 +8,8 @@
 
 #include "CObjectManager.h"
 
+#include <algorithm>
+
 #include "Ids.h"
 #include "ComponentHeaders.h"
 
@@ -28,12 +30,8 @@ bool CObjectManager::Init()
 {
     CProtagonistSphere::Register();
     CEnvironmentHF::Register();
-    
-    
-    CDrawSphere::Register();
-    CDrawSurface::Register();
-    CPhysicsForce::Register();
-    CPhysicsHeightField::Register();
+    CLevelRandom::Register();
+
     CMiracleBox00::Register();
     CMiracleBox01::Register();
     
@@ -66,7 +64,7 @@ void CObjectManager::Deinit()
 
 bool CObjectManager::Load()
 {
-    SHeightFieldProperty propertyHF; //= {32, 48, -16.0f, -24.0f, 0.0f, 1.0f};
+    SGameProperty propertyHF; //= {32, 48, -16.0f, -24.0f, 0.0f, 1.0f};
     
     vector3 positionP = {0.0f, 0.0f, 3.0f};
     
@@ -81,8 +79,9 @@ bool CObjectManager::Load()
     propertyHF.Right = 11.0f;
     propertyHF.Top = 19.0f;
     propertyHF.Bottom = -19.0f;
-    propertyHF.WaveRadius = 5.0f;
-    propertyHF.WaveAnimationTime = 1.0f;
+    propertyHF.WaveRadius = 6.0f;
+    propertyHF.WaveAnimationTime = 5.0f;
+    
     
     CGameObject* protagonist = CreateObject(GOI_PROTAGONIST);
     IComponent* sphere = CreateComponent(CI_PROTAGONIST_SPHERE);
@@ -98,21 +97,27 @@ bool CObjectManager::Load()
     hf->Init(static_cast<void*>(&propertyHF));
 
     vector3 protagonistPosition;
-
+    
+    CGameObject *level = CreateObject(GOI_LEVEL);
+    IComponent *testLevel = CreateComponent(CI_RANDOM_LEVEL);
+    
+    AddComponent(level, testLevel);
+    testLevel->Init(static_cast<void*>(&propertyHF));
+    
     protagonist->GetPosition(&protagonistPosition);
     BroadcastMessage(CMessage(MT_PROTAGONIST_POSITION, static_cast<void*>(&protagonistPosition)));
     
     
     
     
-    /*CGameObject *box = CreateObject(GOI_BOX_COLOR);
-    vector3 positionB = {0.0f, 0.0f, -25.0f};
-    IComponent *star = CreateComponent(CI_MIRACLE_BOX_01);
-    
-    box->SetPosition(&positionB);
-    AddComponent(box, star);
-    
-    star->Init(nullptr);*/
+//    CGameObject *box = CreateObject(GOI_BOX_COLOR);
+//    vector3 positionB = {0.0f, 0.0f, -25.0f};
+//    IComponent *star = CreateComponent(CI_MIRACLE_BOX_01);
+//    
+//    box->SetPosition(&positionB);
+//    AddComponent(box, star);
+//    
+//    star->Init(nullptr);
     
 
     
@@ -163,6 +168,20 @@ CGameObject* CObjectManager::CreateObject(E_GAMEOBJECT_ID GameObjectId)
     m_vectorObjects.push_back(object);
     
     return object;
+}
+
+void CObjectManager::DestroyObject(CGameObject *GameObject)
+{
+    std::vector<CGameObject*>::iterator itr;
+    
+    itr = std::find(m_vectorObjects.begin(), m_vectorObjects.end(), GameObject);
+    
+    if (itr != m_vectorObjects.end())
+    {
+        m_vectorObjects.erase(itr);
+        
+        delete GameObject;
+    }
 }
 
 IComponent* CObjectManager::CreateComponent(E_COMPONENT_ID ComponentId)

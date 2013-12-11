@@ -148,45 +148,20 @@ GLfloat gCubeVertexData[216] =
 {
     [EAGLContext setCurrentContext:self.context];
     
-//    GLKMatrix4MakeOrtho(<#float left#>, <#float right#>, <#float bottom#>, <#float top#>, <#float nearZ#>, <#float farZ#>)
-    
-//    [self loadShaders];
-    
-//    self.effect = [[GLKBaseEffect alloc] init];
-//    self.effect.light0.enabled = GL_TRUE;
-//    self.effect.light0.diffuseColor = GLKVector4Make(1.0f, 0.4f, 0.4f, 1.0f);
-    
     [((GLKView *) self.view) bindDrawable];
     
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_TEXTURE_2D);
     
-    //float aspect = fabsf(self.view.bounds.size.width / self.view.bounds.size.height);
-    
     NSString *path = [[NSBundle mainBundle] bundlePath];
-    
-//    path = [path stringByAppendingString:@"/protagonist.png"];
-    
-//    NSString *path = [[NSBundle mainBundle] pathForResource:@"sample" ofType:@"png"];
-//    NSData *rawData = [NSData dataWithContentsOfFile:path];
-//    NSLog(@"%d", rawData.length);
-//    
-//    long long fileSize = [[[NSFileManager defaultManager] attributesOfItemAtPath:path error:nil][NSFileSize] longLongValue];
-    
-//    Globals::AssignResourcePath([path UTF8String]);
-    GLint fb, df;
-    GLfloat range[2], clr;
-    
+    GLint fb;
     
     glGetIntegerv(GL_FRAMEBUFFER_BINDING_OES, &fb);
     
-    glGetFloatv(GL_DEPTH_RANGE, range);
-    glGetFloatv(GL_DEPTH_CLEAR_VALUE, &clr);
-    glGetIntegerv(GL_DEPTH_FUNC, &df);
-    
-//    CGRect rect = [[UIScreen mainScreen] bounds];
-    
-    _engine.Start(fb, self.view.bounds.size.width, self.view.bounds.size.height, [path UTF8String]);
+    if (!_engine.Start(fb, self.view.bounds.size.width, self.view.bounds.size.height, [path UTF8String]))
+    {
+        
+    }
 }
 
 - (void)tearDownGL
@@ -217,7 +192,7 @@ GLfloat gCubeVertexData[216] =
 
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
 {
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     _engine.Render();
 }

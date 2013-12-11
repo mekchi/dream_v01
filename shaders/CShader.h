@@ -88,6 +88,7 @@ private:
     GLint m_gUniformProjection;
     GLint m_gUniformNormalMatrix;
     GLint m_gUniformLightPosition;
+    GLint m_gUniformColor;
     
 };
 
@@ -224,6 +225,7 @@ private:
     
     GLint m_gUniformProjection;
     GLint m_gUniformTexture[2];
+    GLint m_gUniformColor;
     
 };
 

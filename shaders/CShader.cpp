@@ -339,6 +339,7 @@ bool CShaderDefault::Init()
         m_gUniformProjection = glGetUniformLocation(m_gProgram, "projection");
         m_gUniformNormalMatrix = glGetUniformLocation(m_gProgram, "normalMatrix");
         m_gUniformLightPosition = glGetUniformLocation(m_gProgram, "lightPosition");
+        m_gUniformColor = glGetUniformLocation(m_gProgram, "color");
         
         return true;
     }
@@ -366,6 +367,9 @@ GLint CShaderDefault::GetUnivormLocation(E_SHADER_UNIFORM_LOCATION Type)
             
         case SUL_LIGHTPOSITION:
             return m_gUniformLightPosition;
+            
+        case SUL_COLOR0:
+            return m_gUniformColor;
     }
     
     return -1;
@@ -702,6 +706,7 @@ bool CShaderParticle::Init()
         m_gUniformProjection = glGetUniformLocation(m_gProgram, "projection");
         m_gUniformTexture[0] = glGetUniformLocation(m_gProgram, "tex0");
         m_gUniformTexture[1] = glGetUniformLocation(m_gProgram, "tex1");
+        m_gUniformColor = glGetUniformLocation(m_gProgram, "color");
         
         return true;
     }
@@ -726,7 +731,9 @@ GLint CShaderParticle::GetUnivormLocation(E_SHADER_UNIFORM_LOCATION Type)
             
         case SUL_TEXTURE1:
             return m_gUniformTexture[1];
-
+            
+        case SUL_COLOR0:
+            return m_gUniformColor;
     }
     
     return -1;

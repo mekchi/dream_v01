@@ -46,13 +46,13 @@ public:
     
 //    static CManager* Create ();
     
-private:
-
     CGameObject* CreateObject(E_GAMEOBJECT_ID GameObjectId);
+    void DestroyObject(CGameObject *GameObject);
     IComponent* CreateComponent(E_COMPONENT_ID ComponentId);
     void AddComponent(CGameObject* Object, IComponent *Component);
     
-
+private:
+    
     //typedef std::map<const go_id_type, IComponent*> go_map_type;
     
     //go_map_type m_mapGameObjects;

@@ -1,6 +1,8 @@
 
 precision mediump float;
 
+uniform vec3 color;
+
 varying vec3 N;
 varying vec3 L;
 varying vec3 H;
@@ -38,9 +40,9 @@ void main()
 //               );
 //    }
 //    
-//    gl_FragColor = vec4(color, 1.0);
+    gl_FragColor = vec4(color, 1.0);
     
-    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+//    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
     
 //    if (nv.z < 1.0)
 //    {

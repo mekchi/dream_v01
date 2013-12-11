@@ -82,12 +82,6 @@ private:
     
     float m_fRadius; // radius of the protagonist
     
-    /* wave */
-
-    float m_fWaveLifeTime;
-    float m_fWaveRadius;
-
-    
     /* graphics */
 
     int m_iTotalNumberIndex; // number of indices
@@ -97,6 +91,7 @@ private:
     
     vector3 m_vecProtagonist; // protagonist position
 
+    GLuint m_gTexture;
     GLuint m_gVAO;
     GLuint m_gVBO[3];
     
@@ -107,8 +102,7 @@ private:
     float m_fBorderTop;
     float m_fBorderBottom;
 
-    float m_fWaveRadius;
-    float m_fRadiusRatio; // ratio of radius decrease rate
+//    float m_fRadiusRatio; // ratio of radius decrease rate
     E_PROTAGONIST_STATUS m_eStatusProtagonist;
     E_ENVIRONMENT_STATUS m_eStatus;
     
@@ -117,6 +111,12 @@ private:
     vector3 m_vecTouchDirection;
     float m_fTouchLength;
     float m_fTouchDamping;
+    
+    /* wave */
+    
+    float m_fWaveLifeTime;
+    float m_fWaveRadius;
+    float m_fWaveCurrentRadius;
 };
 
 #endif /* defined(__dream__IEnvironment__) */

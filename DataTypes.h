@@ -63,7 +63,7 @@ typedef struct
     float WaveRadius;
     float WaveAnimationTime;
     
-} SHeightFieldProperty;
+} SGameProperty;
 
 // Material data
 
@@ -80,6 +80,17 @@ typedef struct
     int* IntParams;
     
 } SMaterialRenderData;
+
+// Particle system data
+
+typedef struct
+{
+    int fps;
+    vector3 *Position;
+    float LifeTime;
+    vector3 *Color;
+    
+} SPS_Property;
 
 
 #endif

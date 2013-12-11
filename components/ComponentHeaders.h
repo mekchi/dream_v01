@@ -11,9 +11,7 @@
 
 #include "IProtagonist.h"
 #include "IEnvironment.h"
-
-#include "IDrawObject.h"
-#include "IPhysics.h"
+#include "ILevel.h"
 #include "IMiracleBox.h"
 
 #endif

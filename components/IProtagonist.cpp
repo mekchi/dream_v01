@@ -37,8 +37,8 @@ CProtagonistSphere::~CProtagonistSphere()
 bool CProtagonistSphere::Init(void* Property)
 {
     /* physics */
-    m_fRadius = 1.0f;
-    m_fMass = 500.0f;
+    m_fRadius = 2.0f;
+    m_fMass = 3000.0f;
     m_fLinearDamping = 0.9f;
     m_fAngularDamping = 0.9f;
     
@@ -195,6 +195,18 @@ E_MESSAGE_RESULT CProtagonistSphere::HandleMessage(const CMessage &Message)
             
             return MR_SUCCESS;
         }
+            
+        case MT_ENVIRONMENT_STATUS:
+        {
+            if (*(static_cast<E_ENVIRONMENT_STATUS*>(Message.m_vpData)) == ENVS_WAVE_DONE)
+            {
+                m_eStatus = PRTGS_IDLE;
+                
+                Globals::GetObjectManager().BroadcastMessage(CMessage(MT_PROTAGONIST_STATUS, static_cast<void*>(&m_eStatus)));
+            }
+            
+            return MR_SUCCESS;
+        }
     }
     
     return MR_IGNORE;
@@ -207,6 +219,7 @@ void CProtagonistSphere::Register()
     Globals::GetObjectManager().SubscribeMessage(CI_PROTAGONIST_SPHERE, MT_RENDER);
     Globals::GetObjectManager().SubscribeMessage(CI_PROTAGONIST_SPHERE, MT_TOUCHED_START);
     Globals::GetObjectManager().SubscribeMessage(CI_PROTAGONIST_SPHERE, MT_PROTAGONIST_CHANGE_POSITION);
+    Globals::GetObjectManager().SubscribeMessage(CI_PROTAGONIST_SPHERE, MT_ENVIRONMENT_STATUS);
 }
 
 IComponent* CProtagonistSphere::Create()
@@ -222,41 +235,29 @@ void CProtagonistSphere::Destroy(IComponent *Component)
 
 void CProtagonistSphere::Update(float DeltaTime)
 {
-    SObjectData data;
-    
-    m_opObject->GetPosition(&(data.position));
-    data.Radius = m_fRadius;
-    data.Force = &m_vecForce;
-    data.Torque = &m_vecTorque;
-    
-    // compute forces
-    Globals::GetObjectManager().BroadcastMessage(CMessage(MT_PROTAGONIST_COMPUTE_FORCE,
-                                                          static_cast<void*>(&data)));
-    v3Add(&m_vecForce, &m_vecPull);
-    
-    LinearIntegration(DeltaTime);
-    AngularIntegration(DeltaTime);
-    
-    v3SetZero(&m_vecForce);
-    v3SetZero(&m_vecTorque);
-    v3SetZero(&m_vecPull);
-    
-    switch (m_eStatus)
+    if (m_eStatus == PRTGS_IDLE || m_eStatus == PRTGS_MOVE)
     {
-        case PRTGS_IDLE:
-        {
-            break;
-        }
-        case PRTGS_MOVE:
-        {
-
-        }
-        case PRTGS_SHOW:
-        {
-           
-            
-            break;
-        }
+        SObjectData data;
+        vector3 position;
+        
+        m_opObject->GetPosition(&(data.position));
+        data.Radius = m_fRadius;
+        data.Force = &m_vecForce;
+        data.Torque = &m_vecTorque;
+        
+        // compute forces
+        Globals::GetObjectManager().BroadcastMessage(CMessage(MT_PROTAGONIST_COMPUTE_FORCE, static_cast<void*>(&data)));
+        v3Add(&m_vecForce, &m_vecPull);
+        
+        LinearIntegration(DeltaTime);
+        AngularIntegration(DeltaTime);
+        
+        m_opObject->GetPosition(&position);
+        Globals::GetObjectManager().BroadcastMessage(CMessage(MT_PROTAGONIST_POSITION,         static_cast<void*>(&position)));
+        
+        v3SetZero(&m_vecForce);
+        v3SetZero(&m_vecTorque);
+        v3SetZero(&m_vecPull);
     }
 }
 
@@ -459,27 +460,31 @@ void CProtagonistSphere::Render()
 
 void CProtagonistSphere::Touch(vector3* Point)
 {
-    v3Set(&m_vecPull, Point->x, Point->y, -0.01f);
-
-    if (v3Magnitude(&m_vecPull) <= m_fRadius)
+    if (m_eStatus != PRTGS_TOUCH)
     {
-        m_eStatus = PRTGS_SHOW;
-        
-        m_opObject->ResetRotaiton();
-    }
-    else
-    {
-        m_eStatus = PRTGS_MOVE;
-        
         vector3 position;
-        
+
+        v3Copy(&m_vecPull, Point);
         m_opObject->GetPosition(&position);
-
+        m_vecPull.z = position.z;
         v3Subtract(&m_vecPull, &position);
-        v3Normalize(&m_vecPull);
-        v3Multiply(&m_vecPull, 100000.0f);
-    }
-    
-    Globals::GetObjectManager().BroadcastMessage(CMessage(MT_PROTAGONIST_STATUS, static_cast<void*>(&m_eStatus)));
 
+        if (v3Magnitude(&m_vecPull) <= m_fRadius)
+        {
+            m_eStatus = PRTGS_TOUCH;
+            
+            m_opObject->ResetRotaiton();
+        }
+        else
+        {
+            //v3Set(&m_vecPull, Point->x, Point->y, -0.01f);
+            
+            m_eStatus = PRTGS_MOVE;
+
+            v3Normalize(&m_vecPull);
+            v3Multiply(&m_vecPull, 150000.0f);
+        }
+
+        Globals::GetObjectManager().BroadcastMessage(CMessage(MT_PROTAGONIST_STATUS, static_cast<void*>(&m_eStatus)));
+    }
 }

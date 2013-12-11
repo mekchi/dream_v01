@@ -20,7 +20,7 @@ void main()
     const vec3 viewPosition = vec3(0.0, 0.0, 5.0);
     vec3 vertex = (modelview * position).xyz;
 
-    uv = vec2((position.x + 17.0) / 34.0, (position.y + 25.0) / 50.0);
+    uv = vec2((position.x + 16.0) / 32.0, (position.y + 24.0) / 48.0);
 
     P = position.xyz;
     N = normalize(normalMatrix * vec4(normal, 0.0)).xyz;

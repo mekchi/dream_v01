@@ -135,12 +135,16 @@ void CMiracleBox00::Render()
 bool CMiracleBox01::Init(void *Property)
 {
     vector3 position;
+    vector3 color;
     
     m_opObject->GetPosition(&position);
     
-    SPS_Spark01_Property prop = {0, &position};
+    v3Set(&color, 0.0f, 1.0f, 0.0f);
+    
+    SPS_Property prop = {0, &position, 20.0f, &color};
     
     m_oSpark.Init(static_cast<void*>(&prop));
+    m_oButterfly.Init(static_cast<void*>(&prop));
     
     return true;
 }
@@ -148,6 +152,7 @@ bool CMiracleBox01::Init(void *Property)
 void CMiracleBox01::Deinit()
 {
     m_oSpark.Deinit();
+    m_oButterfly.Deinit();
 }
 
 E_MESSAGE_RESULT CMiracleBox01::HandleMessage(const CMessage &Message)
@@ -193,10 +198,12 @@ void CMiracleBox01::Destroy(IComponent *Component)
 
 void CMiracleBox01::Update(float DeltaTime)
 {
-    m_oSpark.Update(DeltaTime);
+//    m_oSpark.Update(DeltaTime);
+    m_oButterfly.Update(DeltaTime);
 }
 
 void CMiracleBox01::Render()
 {
-    m_oSpark.Render();
+//    m_oSpark.Render();
+    m_oButterfly.Render();
 }

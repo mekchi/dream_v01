@@ -72,7 +72,7 @@ bool CSoundManager::LoadSound(int Id)
     unsigned char *fullData = nullptr;
     short *pureData = nullptr;
     
-    if (!LoadFileBytes("splash.ogg", &fullData, &sizeFullData))
+    if (!LoadFileBytes("music.ogg", &fullData, &sizeFullData))
     {
         __LOG("Faild to load sound");
         
@@ -89,9 +89,10 @@ bool CSoundManager::LoadSound(int Id)
     }
     
     alGenBuffers(1, &m_aBuffer);
-    alBufferData(m_aBuffer, AL_FORMAT_STEREO16, static_cast<ALvoid*>(pureData), sizeFullData * 2, 48000);
+    alBufferData(m_aBuffer, AL_FORMAT_STEREO16, static_cast<ALvoid*>(pureData), sizeFullData * 2, 44100);
     alGenSources(1, &m_aSource);
     alSourcei(m_aSource, AL_BUFFER, m_aBuffer);
+    alSourcei(m_aSource, AL_LOOPING, AL_TRUE);
 
     delete fullData;
     free(pureData);

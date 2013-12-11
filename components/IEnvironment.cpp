@@ -15,6 +15,8 @@
 #include "Globals.h"
 #include "CMessage.h"
 #include "CShader.h"
+#include "LoadTools.h"
+#include "CSoundManager.h"
 
 
 CEnvironmentHF::CEnvironmentHF()
@@ -24,6 +26,7 @@ CEnvironmentHF::CEnvironmentHF()
     
     m_fWaveLifeTime = 0.0f;
     m_fWaveRadius = 0.0f;
+    m_fWaveCurrentRadius = 0.0f;
 }
 
 CEnvironmentHF::~CEnvironmentHF()
@@ -35,7 +38,7 @@ bool CEnvironmentHF::Init(void* Property)
     assert(Property);
     if (!Property) return false;
     
-    SHeightFieldProperty *property = static_cast<SHeightFieldProperty*>(Property);
+    SGameProperty *property = static_cast<SGameProperty*>(Property);
     
     m_fStep = property->GridStep;
     m_iNumberWidth = property->NumberWidthHeight * 2 + 2;
@@ -54,7 +57,7 @@ bool CEnvironmentHF::Init(void* Property)
     m_fBorderTop = property->Top;
     m_fBorderBottom = property->Bottom;
     
-    m_fRadiusRatio = 1.99f;
+//    m_fRadiusRatio = 1.99f;
     m_fTouchDamping = 0.9f;
     
     m_avecPosition = new vector3[m_iTotalNumber];
@@ -91,8 +94,6 @@ bool CEnvironmentHF::Init(void* Property)
 
         }
     }
-    
-    SMaterialData data = {"wave.bmp"};
     
     m_iTotalNumberIndex = (m_iNumberWidth - 1)  * (m_iNumberHeight - 1) * 6;
     
@@ -151,17 +152,29 @@ bool CEnvironmentHF::Init(void* Property)
     
     glBindVertexArrayOES(0);
     
-    //    glGenTextures(1, &m_gTexture);
-    //
-    //    glBindTexture(GL_TEXTURE_2D, m_gTexture);
-    //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    //
-    //    if (!loadBmpImage(Data->TextureFileName.c_str()))
-    //        return false;
+    unsigned char *texData = nullptr;
+    unsigned int texW = 0, texH = 0;
+    
+    if (!LoadPngBytes("lighting.png", &texData, &texW, &texH))
+    {
+        __LOG("Faild to init (environment)");
+        
+        return false;
+    }
+    
+    glGenTextures(1, &m_gTexture);
 
+    glBindTexture(GL_TEXTURE_2D, m_gTexture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texW, texH, 0, GL_RGBA, GL_UNSIGNED_BYTE, texData);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    
+    DeletePngBytes(texData);
+    
+    Globals::GetSoundManager().PlaySound(0);
     
     return true;
 }
@@ -174,6 +187,8 @@ void CEnvironmentHF::Deinit()
     if (m_afVelocityContinuous) delete m_afVelocityContinuous;
     if (m_aiIndex) delete m_aiIndex;
     if (m_avecNormal) delete m_avecNormal;
+    
+    if (m_gTexture) glDeleteTextures(1, &m_gTexture);
 }
 
 E_MESSAGE_RESULT CEnvironmentHF::HandleMessage(const CMessage &Message)
@@ -199,7 +214,6 @@ E_MESSAGE_RESULT CEnvironmentHF::HandleMessage(const CMessage &Message)
         {
 
             Touch(static_cast<vector3*>(Message.m_vpData));
-
             
             return MR_SUCCESS;
         }
@@ -207,6 +221,13 @@ E_MESSAGE_RESULT CEnvironmentHF::HandleMessage(const CMessage &Message)
         case MT_PROTAGONIST_STATUS:
         {
             m_eStatusProtagonist = *(static_cast<E_PROTAGONIST_STATUS*>(Message.m_vpData));
+            
+            return MR_SUCCESS;
+        }
+            
+        case MT_PROTAGONIST_POSITION:
+        {
+            v3Copy(&m_vecProtagonist, static_cast<vector3*>(Message.m_vpData));
             
             return MR_SUCCESS;
         }
@@ -230,6 +251,7 @@ void CEnvironmentHF::Register()
     Globals::GetObjectManager().SubscribeMessage(CI_ENVIRONMENT_HEIGHTFIELD, MT_TOUCHED_START);
     Globals::GetObjectManager().SubscribeMessage(CI_ENVIRONMENT_HEIGHTFIELD, MT_PROTAGONIST_STATUS);
     Globals::GetObjectManager().SubscribeMessage(CI_ENVIRONMENT_HEIGHTFIELD, MT_PROTAGONIST_COMPUTE_FORCE);
+    Globals::GetObjectManager().SubscribeMessage(CI_ENVIRONMENT_HEIGHTFIELD, MT_PROTAGONIST_POSITION);
 }
 
 IComponent* CEnvironmentHF::Create()
@@ -245,27 +267,6 @@ void CEnvironmentHF::Destroy(IComponent *Component)
 
 void CEnvironmentHF::Update(float DeltaTime)
 {
-    m_fWaveLifeTime -= DeltaTime;
-    
-    if (m_fWaveLifeTime <= 0.0f)
-    {
-        m_fWaveRadius -= DeltaTime * m_fWaveRadiusStep;
-    }
-    else
-    {
-        m_fWaveRadius += DeltaTime * m_fWaveRadiusStep;
-    }
-    
-    if (m_fWaveRadius < 0.0f)
-    {
-        m_bTouched = false;
-        m_fWaveRadius = 0.0f;
-    }
-    else
-    {
-        Globals::GetObjectManager().BroadcastMessage(CMessage(MT_PROTAGONIST_TOUCH, static_cast<void*>(&m_fWaveRadius)));
-    }
-    
     UpdatePhysics(DeltaTime);
     UpdateGraphics(DeltaTime);
 }
@@ -368,8 +369,41 @@ void CEnvironmentHF::GetNormal(vector3* normal, vector3* p1, vector3* p2, vector
 
 void CEnvironmentHF::UpdateGraphics(float DeltaTime)
 {
+    if (m_eStatusProtagonist == PRTGS_TOUCH)
+    {
+        const float halfLifeTime = m_fWaveLifeTime * 0.5f;
+        static float time = 0.0f;
+        
+        if (time < m_fWaveLifeTime)
+        {
+            time += DeltaTime;
+            
+            if (time >= halfLifeTime)
+            {
+                m_fWaveCurrentRadius -= DeltaTime * m_fWaveRadius;
+
+                if (m_fWaveCurrentRadius < 0.0f)
+                {
+                    m_fWaveCurrentRadius = 0.0f;
+                    time = m_fWaveLifeTime;
+                }
+            }
+            else
+                m_fWaveCurrentRadius += DeltaTime * m_fWaveRadius;
+        }
+        else
+        {
+            E_ENVIRONMENT_STATUS status = ENVS_WAVE_DONE;
+            
+            Globals::GetObjectManager().BroadcastMessage(CMessage(MT_ENVIRONMENT_STATUS, static_cast<void*>(&status)));
+            
+            time = 0.0f;
+            m_fWaveCurrentRadius = 0.0f;
+        }
+    }
+    
     int ij = 0;
-    vector3 n1, n2, n3, n4, n5, n6;
+//    vector3 n1, n2, n3, n4, n5, n6;
     
     for (int i = 1; i < m_iNumberWidth - 1; i++)
         for (int j = 1; j < m_iNumberHeight - 1; j++)
@@ -483,49 +517,6 @@ void CEnvironmentHF::UpdateTouch(float DeltaTime)
             idy = 0;
         }
     }
-    
-//    v3Multiply(&newPosition, -1.0f);
-    
-    
-//    shiftLength += m_fTouchLength * DeltaTime;
-//    v3MultiplyToR(&shift, &m_vecTouchDirection, m_fTouchLength * DeltaTime);
-//
-//    v3Add(&newPosition, &shift);
-//    m_opObject->SetPosition(&newPosition);
-//    
-//    m_fTouchLength *= m_fTouchDamping;
-    
-    
-//    vector3 vn, vt, v;
-//    float t = 0.0f;
-//    int ij = 0, x = 0, y = 0;
-//    int radiusCells = (int)(m_fRadius / m_fStep);
-//    int diameterCells = radiusCells * 2;
-//    int startX = 0, startY = 0;
-//    
-//    v3Copy(&vt, &m_vecTouchDirection);
-//    v3Multiply(&vt, m_fRadius);
-//    
-//    while (m_fTouchLength > v3Magnitude(&vt))
-//    {
-//        x = (int)((vt.x - m_fOriginX) / m_fStep);
-//        y = (int)((vt.y - m_fOriginY) / m_fStep);
-////        t = m_fRadius * m_fRadiusRatio;
-//        startX = x - radiusCells; // can't be negative
-//        startY = y - radiusCells; // can't be negative
-//        
-//        for (int i = 0; i < diameterCells; i++)
-//            for (int j = 0; j < diameterCells; j++)
-//            {
-//                ij = (startX + i) * m_iNumberHeight + (startY + j);
-//                
-////                m_avecPosition[ij].z -= t;
-//                m_avecPosition[ij].z -= m_fRadius;
-//            }
-//        v3MultiplyToR(&v, &vn, m_fRadius);
-//        v3Add(&vt, &v);
-//    }
-
 }
 
 void CEnvironmentHF::Render()
@@ -537,65 +528,36 @@ void CEnvironmentHF::Render()
     mInvertToR(&temp, &invertTemp);
     mTranspose(&invertTemp);
     
+    glDisable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    
+    glBlendFunc(GL_ONE, GL_ONE);
+    
     glUseProgram(CShader::GetShader(ST_HF)->GetProgram());
     
     glUniformMatrix4fv(CShader::GetShader(ST_HF)->GetUnivormLocation(SUL_MODELVIEW), 1, GL_FALSE, temp.m);
     glUniformMatrix4fv(CShader::GetShader(ST_HF)->GetUnivormLocation(SUL_NORMALMATRIX), 1, GL_FALSE, invertTemp.m);
     glUniform3fv(CShader::GetShader(ST_HF)->GetUnivormLocation(SUL_LIGHTPOSITION), 1, m_vecProtagonist.v);
-//    glActiveTexture(GL_TEXTURE0);
-//    glBindTexture(GL_TEXTURE_2D, m_gTexture);
-//    glUniform1i(CShader::GetShader(ST_HF)->GetUnivormLocation(SUL_TEXTURE0), 0);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, m_gTexture);
+    glUniform1i(CShader::GetShader(ST_HF)->GetUnivormLocation(SUL_TEXTURE0), 0);
     
-    glUniform1f(CShader::GetShader(ST_HF)->GetUnivormLocation(SUL_FLOAT0), m_fWaveRadius);
+    glUniform1f(CShader::GetShader(ST_HF)->GetUnivormLocation(SUL_FLOAT0), m_fWaveCurrentRadius);
     
     glBindVertexArrayOES(m_gVAO);
     glDrawElements(GL_TRIANGLES, m_iTotalNumberIndex, GL_UNSIGNED_INT, (void*)0);
+    
+    glDisable(GL_BLEND);
+    glEnable(GL_DEPTH_TEST);
+    
 }
 
 void CEnvironmentHF::Touch(vector3 *Point)
 {
-
-    
-    
-//    vector3 vn, vt, v;
-//    float length = v3Magnitude(Point);
-//    float t = 0.0f;
-//    int ij = 0, x = 0, y = 0;
-//    int radiusCells = (int)(m_fRadius / m_fStep);
-//    int diameterCells = radiusCells * 2;
-//    int startX = 0, startY = 0;
-    
     m_fTouchLength = v3Magnitude(Point);
     v3Copy(&m_vecTouchDirection, Point);
     v3Normalize(&m_vecTouchDirection);
     v3Multiply(&m_vecTouchDirection, -1.0f);
-//    v3Copy(&vt, &vn);
-//    v3Multiply(&vt, m_fRadius);
-//    
-//    while (length > v3Magnitude(&vt))
-//    {
-//        x = (int)((vt.x - m_fOriginX) / m_fStep);
-//        y = (int)((vt.y - m_fOriginY) / m_fStep);
-//        t = m_fRadius * m_fRadiusRatio;
-//        startX = x - radiusCells; // can't be negative
-//        startY = y - radiusCells; // can't be negative
-//        
-//        for (int i = 0; i < diameterCells; i++)
-//            for (int j = 0; j < diameterCells; j++)
-//            {
-//                ij = (startX + i) * m_iNumberHeight + (startY + j);
-//                
-//                m_avecPosition[ij].z -= t;
-//            }
-//        v3MultiplyToR(&v, &vn, m_fRadius);
-//        v3Add(&vt, &v);
-//    }
- 
-    
-//    int x = (int)(Data->x / m_fStep) + 1;
-//    int y = (int)(Data->y / m_fStep) + 1;
-//    
-//    m_avecPosition[x * m_iNumberHeight + y].z -= 2.0f;
 }
 
 
